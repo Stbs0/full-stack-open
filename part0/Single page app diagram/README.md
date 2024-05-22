@@ -1,3 +1,4 @@
+```mermaid
 sequenceDiagram
 participant browser
 participant server
@@ -23,3 +24,4 @@ participant server
     activate server
     server-->>browser: [{ "content": XXX, "date": XXX }, ... ]
     deactivate server
+```
