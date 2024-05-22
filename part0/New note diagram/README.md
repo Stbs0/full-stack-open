@@ -18,6 +18,10 @@ participant server
     activate server
     server-->>browser: the JavaScript file
     deactivate server
+ browser->>server: GET https://studies.cs.helsinki.fi/exampleapp/data.json
+    activate server
+    server-->>browser: [{ "content": XXX, "date": XXX }, ... ]
+    deactivate server
     browser-->>user: show new page with added note
 
 ```
