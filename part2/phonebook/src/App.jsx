@@ -2,24 +2,21 @@ import { useState, useEffect } from "react";
 import Filter from "./components/Filter";
 import PersonForm from "./components/PersonForm";
 import Persons from "./components/Persons";
-import axios from "axios";
+import contactsService from "./services/contacts";
 const App = () => {
   const [persons, setPersons] = useState([]);
   const [newName, setNewName] = useState("");
   const [newNumber, setNewNumber] = useState("");
   const [filter, setNameFilter] = useState([]);
   useEffect(() => {
-    axios.get(" http://localhost:3001/persons").then((res)=>{
-    console.log(res.data)
-    setPersons(res.data)
-    })
-  },[]);
+    contactsService.getAll().then((initialContacts) => {
+      setPersons(initialContacts);
+    });
+  }, []);
   const handleOnChangeName = (e) => {
-    console.log(e.target.value);
     setNewName(e.target.value);
   };
   const handleOnChangeNumber = (e) => {
-    console.log(e.target.value);
     setNewNumber(e.target.value);
   };
   const handleOnChangeFilter = (e) => {
@@ -32,24 +29,47 @@ const App = () => {
     console.log(ff);
     setNameFilter(ff);
   };
+
   const handleOnSubmit = (e) => {
     e.preventDefault();
     const newPerson = {
       name: newName,
       number: newNumber,
-      id: persons.length + 1,
     };
-    for (const person of persons) {
-      if (person.name === newPerson.name) {
-        alert(`${newPerson.name} is already added to phonebook`);
-        return;
-      }
+    const Duplicate = persons.filter(
+      (person) => person.name === newPerson.name
+    );
+
+    if (Duplicate[0] !== undefined) {
+      window.confirm(
+        `${newName} is already added to phonebook, replace the old number with a new one?`
+      )
+        ? contactsService.update(newPerson, Duplicate[0].id).then((updated) => {
+            const copy = persons.filter(
+              (person) => person.name !== updated.name
+            );
+            setPersons(copy.concat(updated));
+          })
+        : null;
+    } else {
+      contactsService.create(newPerson).then((newContact) => {
+        setPersons(persons.concat(newContact));
+      });
     }
-    setPersons(persons.concat(newPerson));
+
     setNewName("");
     setNewNumber("");
   };
-
+  const handleOnClickDelete = (id, name) => {
+    if (window.confirm(`Delete ${name}?`)) {
+      contactsService.remove(id);
+      setPersons(
+        persons.filter((person) => {
+          return person.id !== id;
+        })
+      );
+    }
+  };
   return (
     <div>
       <h2>Phonebook</h2>
@@ -63,7 +83,7 @@ const App = () => {
         handleOnSubmit={handleOnSubmit}
       />
       <h2>Numbers</h2>
-      <Persons persons={persons} />
+      <Persons persons={persons} handleOnClickDelete={handleOnClickDelete} />
     </div>
   );
 };
