@@ -3,11 +3,14 @@ import Filter from "./components/Filter";
 import PersonForm from "./components/PersonForm";
 import Persons from "./components/Persons";
 import contactsService from "./services/contacts";
+import Notification from "./components/Notification";
 const App = () => {
   const [persons, setPersons] = useState([]);
   const [newName, setNewName] = useState("");
   const [newNumber, setNewNumber] = useState("");
   const [filter, setNameFilter] = useState([]);
+  const [succussMessage, setSuccuss] = useState(null);
+  const [errorMessage, setErrorMessage] = useState(null);
   useEffect(() => {
     contactsService.getAll().then((initialContacts) => {
       setPersons(initialContacts);
@@ -44,16 +47,28 @@ const App = () => {
       window.confirm(
         `${newName} is already added to phonebook, replace the old number with a new one?`
       )
-        ? contactsService.update(newPerson, Duplicate[0].id).then((updated) => {
-            const copy = persons.filter(
-              (person) => person.name !== updated.name
-            );
-            setPersons(copy.concat(updated));
-          })
+        ? contactsService
+            .update(newPerson, Duplicate[0].id)
+            .then((updated) => {
+              const copy = persons.filter(
+                (person) => person.name !== updated.name
+              );
+              setPersons(copy.concat(updated));
+            })
+            .catch((err) => {
+              setErrorMessage(
+                `information ${newPerson.name} was already removed from server`
+              );
+              setTimeout(() => {
+                setErrorMessage(null);
+              }, 5000);
+            })
         : null;
     } else {
       contactsService.create(newPerson).then((newContact) => {
         setPersons(persons.concat(newContact));
+        setSuccuss(`Added ${newPerson.name}`);
+        setTimeout(() => setSuccuss(null), 3000);
       });
     }
 
@@ -73,6 +88,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification succussMsg={succussMessage} errorMsg={errorMessage} />
       <Filter handleOnChangeFilter={handleOnChangeFilter} filter={filter} />
       <h1>add a new</h1>
       <PersonForm
