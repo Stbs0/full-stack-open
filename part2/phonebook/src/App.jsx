@@ -69,7 +69,10 @@ const App = () => {
         setPersons(persons.concat(newContact));
         setSuccuss(`Added ${newPerson.name}`);
         setTimeout(() => setSuccuss(null), 3000);
-      });
+      }).catch((error=>{
+        setErrorMessage(error.response.data.error);
+        console.log(error.response.data.error);
+      }))
     }
 
     setNewName("");
