@@ -2,8 +2,21 @@ POST http://localhost:3003/api/blogs
 Content-Type: application/json
 
 {
-      "title": "dhrt",
-    "author": "ukyuf",
+      "title": "xxxxx",
+    "author": "444444",
     "url": "http://localhost:3003/api/blogs",
-    "likes": 47435
+    "likes": 2,
+    "userId":"665cfd6630031b6d849bccba"
 }
+###
+POST http://localhost:3003/api/blogs
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InNvb29sbGxsYWFhIiwiaWQiOiI2NjVjZmQ2NjMwMDMxYjZkODQ5YmNjYmEiLCJpYXQiOjE3MTczNzI1NzB9.a674stpazZrROT49GaD0Eb7VtNKlxM7tlsCwxx_G4OA
+
+{
+      "title": "efwefw",
+    "author": "444444",
+    "url": "http://localhost:3003/api/blogs",
+    "likes": 2
+}
+
