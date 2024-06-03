@@ -1,39 +1,37 @@
-const usersRouters = require("express").Router();
 const bcrypt = require("bcrypt");
+const router = require("express").Router();
 const User = require("../models/user");
 
-usersRouters.post("/", async (req, res) => {
-  const { username, password, name } = req.body;
-  if ( username.length <= 3) {
-    return res.status(401).json({
-      error: "username must be higher than 3 characters",
-    });
+router.post("/", async (request, response) => {
+  const { username, name, password } = request.body;
+
+  if (!password || password.length < 3) {
+    return response
+      .status(400)
+      .json({ error: "password missing or too short" });
   }
-  if (password.length <= 3 ) {
-    return res.status(401).json({
-      error: "password must be higher than 3 characters",
-    });
-  }
-  const saltRound = 10;
-  const passwordHash = await bcrypt.hash(password, saltRound);
+
+  const saltRounds = 10;
+  const passwordHash = await bcrypt.hash(password, saltRounds);
 
   const user = new User({
     username,
     name,
     passwordHash,
   });
+
   const savedUser = await user.save();
 
-  res.status(201).json(savedUser);
+  response.status(201).json(savedUser);
 });
 
-usersRouters.get("/", async (req, res) => {
+router.get("/", async (request, response) => {
   const users = await User.find({}).populate("blogs", {
+    url: 1,
     title: 1,
     author: 1,
-    url: 1,
-    likes: 1,
   });
-  res.json(users);
+  response.json(users);
 });
-module.exports = usersRouters;
+
+module.exports = router;
