@@ -1,6 +1,7 @@
-const logger = require("./logger");
-const User = require("../models/user");
 const jwt = require("jsonwebtoken");
+const logger = require("./logger");
+
+const User = require("../models/user");
 
 const requestLogger = (request, response, next) => {
   logger.info("Method:", request.method);
@@ -28,36 +29,44 @@ const errorHandler = (error, request, response, next) => {
     return response
       .status(400)
       .json({ error: "expected `username` to be unique" });
-  } else if (error.name === "JsonWebTokenError") {
-    return response.status(401).json({ error: "token invalid" });
-  } else if (error.name === "TokenExpiredError") {
-    return response.status(401).json({
-      error: "token expired",
-    });
   }
 
   next(error);
 };
-const extractToken = (req, res, next) => {
-  const authorization = req.get("Authorization");
+
+const getTokenFrom = (request) => {
+  const authorization = request.get("authorization");
   if (authorization && authorization.startsWith("Bearer ")) {
-    req.token = authorization.replace("Bearer ", "");
-  } else {
-    req.token = null;
+    return authorization.replace("Bearer ", "");
   }
-  next();
+  return null;
 };
-userExtractor = async (req, res, next) => {
-  
-  const decodedToken = jwt.verify(req.token, process.env.SECRET);
-  const {username,_id} = await User.findById(decodedToken.id);
-  req.user = {username,id:_id.toString()};
+
+const userExtractor = async (request, response, next) => {
+  const token = getTokenFrom(request);
+
+  if (!token) {
+    return response.status(401).json({ error: "token missimg" });
+  }
+
+  const decodedToken = jwt.verify(token, process.env.SECRET);
+  if (!decodedToken.id) {
+    return response.status(401).json({ error: "token invalid" });
+  }
+
+  const user = await User.findById(decodedToken.id);
+
+  if (!user) {
+    return response.status(401).json({ error: "user not found" });
+  }
+
+  request.user = user;
+
   next();
 };
 
 module.exports = {
   requestLogger,
-  extractToken,
   unknownEndpoint,
   errorHandler,
   userExtractor,

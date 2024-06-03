@@ -5,7 +5,7 @@ const app = require("../app");
 const api = supertest(app);
 const User = require("../models/user");
 const assert = require("node:assert");
-const helper = require("./test.helper");
+const helper = require("./test_helper");
 const bcrypt = require("bcrypt");
 
 beforeEach(async () => {
