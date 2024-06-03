@@ -17,13 +17,14 @@ describe("when there is initially some notes saved", () => {
     const blogObjects = helper.initialBlogs.map((blog) => new Blog(blog));
     const promiseArray = blogObjects.map((blog) => blog.save());
     await Promise.all(promiseArray);
+
+    await User.deleteMany({});
     // TODO: make the athorization header bedore each test
     const user = {
       username: "stbs",
       name: "mohammed",
       password: "1234",
     };
-    await User.deleteMany({});
 
     const saltRound = 10;
     user.passwordHash = await bcrypt.hash(user.password, saltRound);
@@ -31,19 +32,18 @@ describe("when there is initially some notes saved", () => {
     const newUser = new User(user);
     await newUser.save();
 
-    const response = await api.post("/api/login", {
-      username: "stbs",
-      password: "1234",
-    });
     const hash = await api
       .post("/api/login")
       .send({ username: "stbs", password: "1234" });
-    loggedToken = hash.token;
+    loggedToken = hash.body.token;
+    console.log(loggedToken);
   });
+
   describe("first", () => {
     test("return all blogs", async () => {
       await api
         .get("/api/blogs")
+        .set("Authorization", `Bearer ${loggedToken}`)
         .expect(200)
         .expect("Content-Type", /application\/json/);
     });
@@ -69,7 +69,8 @@ describe("when there is initially some notes saved", () => {
       await api
         .post("/api/blogs")
         .send(newBlog)
-        .set("Authorization", loggedToken)
+
+        .set("Authorization", `Bearer ${loggedToken}`)
         .expect(201)
         .expect("Content-Type", /application\/json/);
       const afterRes = await helper.BlogsInDb();
@@ -86,6 +87,7 @@ describe("when there is initially some notes saved", () => {
       await api
         .post("/api/blogs")
         .send(newBlog)
+        .set("Authorization", `Bearer ${loggedToken}`)
         .expect(201)
         .expect("Content-Type", /application\/json/);
       const allBlogs = await helper.BlogsInDb();
@@ -113,6 +115,7 @@ describe("when there is initially some notes saved", () => {
       await api
         .post("/api/blogs")
         .send(newBlog)
+        .set("Authorization", `Bearer ${loggedToken}`)
         .expect(201)
         .expect("Content-Type", /application\/json/);
       const allBlogs = await helper.BlogsInDb();
@@ -133,7 +136,11 @@ describe("when there is initially some notes saved", () => {
         likes: 2,
       };
 
-      await api.post("/api/blogs").send(newBlog).expect(400);
+      await api
+        .post("/api/blogs")
+        .send(newBlog)
+        .set("Authorization", `Bearer ${loggedToken}`)
+        .expect(400);
     });
     test("verify url have blog", async () => {
       const newBlog = {
@@ -149,7 +156,10 @@ describe("when there is initially some notes saved", () => {
     test("delete certain blog", async () => {
       const allBlogs = await helper.BlogsInDb();
       const deleteOne = allBlogs[0];
-      await api.delete(`/api/blogs/${deleteOne.id}`).expect(204);
+      await api
+        .delete(`/api/blogs/${deleteOne.id}`)
+        .set("Authorization", `Bearer ${loggedToken}`)
+        .expect(204);
       const res = await helper.BlogsInDb();
 
       assert.strictEqual(res.length, helper.initialBlogs.length - 1);
@@ -169,6 +179,7 @@ describe("when there is initially some notes saved", () => {
       await api
         .put(`/api/blogs/${old.id}`)
         .send(newBlog)
+        .set("Authorization", `Bearer ${loggedToken}`)
         .expect("Content-Type", /application\/json/);
 
       const end = await helper.BlogsInDb();
