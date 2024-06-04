@@ -1,7 +1,9 @@
-const Blog = ({ blog }) => (
+const Blog = ({  userBlogs }) => (
   <div>
-    {blog.title} {blog.author}
-  </div>  
-)
+    {userBlogs.map((blog) => (
+      <p key={blog.id}>{blog.title}</p>
+    ))}
+  </div>
+);
 
 export default Blog

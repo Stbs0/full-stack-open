@@ -1,5 +1,4 @@
 const Notification = ({ message, errorMessage }) => {
- 
   const looks = {
     color: "red",
     background: "lightgrey",
@@ -9,13 +8,12 @@ const Notification = ({ message, errorMessage }) => {
     padding: 10,
     marginBottom: 10,
   };
-  if (errorMessage) {
-    return <div style={looks}>{errorMessage}</div>;
-  }else{
-    looks.color="green"
-    return <div style={looks}>{message}</div>;
-  }
-  
+
+  return errorMessage ? (
+    <div style={looks}>{errorMessage}</div>
+  ) : (
+    <div style={{ ...looks, color: "green" }}>{message}</div>
+  );
 };
 
 export default Notification;
