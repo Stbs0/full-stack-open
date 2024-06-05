@@ -10,7 +10,6 @@ const App = () => {
   const [user, setUser] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
   const [message, setMessage] = useState(null);
-  const [userBlogs, setUserBlogs] = useState([]);
   const blogVisRef = useRef();
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem("loggedBlogAppUser");
@@ -33,9 +32,6 @@ const App = () => {
       setUser(user);
       setUsername("");
       setPassword("");
-      setUserBlogs(
-        blogs.filter((blog) => user.username === blog.user.username),
-      );
     } catch (error) {
       console.log(error);
       setErrorMessage("Wrong credentials");
@@ -49,11 +45,26 @@ const App = () => {
     window.localStorage.removeItem("loggedBlogAppUser");
     setUser(null);
   };
+  const handleUpdateBlog = async (newBlog, id) => {
+    try {
+      const res = await blogService.update(newBlog, id);
+      console.log(res);
+const filtered=blogs.filter(blog=> blog.id !==newBlog)
+      setBlogs([ ...filtered, res ]);
+      blogVisRef.current.toggleVisibility();
+      setMessage("Blog updated");
+      setTimeout(() => {
+        setMessage(null);
+      }, 5000);
+    } catch (error) {
+      throw error;
+    }
+  };
 
   const handleCreateBlog = async (blogObj) => {
     try {
       const res = await blogService.create(blogObj);
-      setUserBlogs([...userBlogs, res]);
+      setBlogs([...blogs, res] );
       blogVisRef.current.toggleVisibility();
       setMessage("Blog created");
       setTimeout(() => {
@@ -80,9 +91,10 @@ const App = () => {
           message={message}
           errorMessage={errorMessage}
           handleLogout={handleLogout}
+          handleUpdateBlog={handleUpdateBlog}
           user={user}
           handleCreateBlog={handleCreateBlog}
-          userBlogs={userBlogs}
+          blogs={blogs}
           ref={blogVisRef}
         />
       )}

@@ -1,6 +1,7 @@
-import { useState, Fragment } from "react";
-const Blog = ({ blog }) => {
+import { useState } from "react";
+const Blog = ({ blog, handleUpdateBlog }) => {
   const [showDetails, setShowDetails] = useState(false);
+  console.log("blog");
 
   const blogStyle = {
     paddingTop: 10,
@@ -13,22 +14,30 @@ const Blog = ({ blog }) => {
   const handleClick = () => {
     setShowDetails(!showDetails);
   };
-  console.log("blog");
+  console.log("blog",blog);
   return (
     <div style={blogStyle}>
       <p>
         {blog.title}
         <button onClick={handleClick}>{showDetails ? "hide" : "view"}</button>
       </p>
-      {showDetails && (
-        <div>
-          <p>{blog.url}</p>
-          <p>
-            {blog.likes} <button>likes</button>
-          </p>
-          <p>{blog.author}</p>
-        </div>
-      )}
+
+      <div style={showDetails ? { display: "block" } : { display: "none" }}>
+        <p>{blog.url}</p>
+        <p>
+          {blog.likes}{" "}
+          <button
+            onClick={() =>
+              handleUpdateBlog(
+                { ...blog, likes: String(+blog.likes + 1) },
+                blog.id,
+              )
+            }>
+            likes
+          </button>
+        </p>
+        <p>{blog.author}</p>
+      </div>
     </div>
   );
 };

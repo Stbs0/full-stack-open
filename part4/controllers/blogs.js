@@ -5,14 +5,13 @@ const User = require("../models/user");
 const userExtractor = require("../utils/middleware").userExtractor;
 
 router.get("/", async (request, response) => {
+  
   const blogs = await Blog.find({}).populate("user", { username: 1, name: 1 });
-
   response.json(blogs);
 });
 
 router.post("/", userExtractor, async (request, response) => {
   const blog = new Blog(request.body);
-
   const user = request.user;
 
   if (!user) {
@@ -49,7 +48,7 @@ router.delete("/:id", userExtractor, async (request, response) => {
   await blog.deleteOne();
 
   user.blogs = user.blogs.filter(
-    (b) => b._id.toString() !== blog._id.toString()
+    (b) => b._id.toString() !== blog._id.toString(),
   );
 
   await user.save();
@@ -65,11 +64,13 @@ router.put("/:id", async (request, response) => {
     author: body.author,
     url: body.url,
     likes: body.likes,
+    user: body.user.id,
   };
 
   const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, blog, {
     new: true,
-  });
+  }).populate("user", { username: 1, name: 1 });
+  console.log(updatedBlog);
   response.json(updatedBlog);
 });
 
