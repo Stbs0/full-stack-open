@@ -1,43 +1,58 @@
-import { useState ,forwardRef} from "react";
-const BlogForm = forwardRef((props, refs) => {
-  
+import { useState } from "react";
+const BlogForm = ({ createBlog }) => {
+  const [newBlog, setNewBlog] = useState({
+    title: "",
+    author: "",
+    url: "",
+  });
+
+  const addBlog = (event) => {
+    event.preventDefault();
+    createBlog(newBlog);
+
+    setNewBlog({
+      title: "",
+      author: "",
+      url: "",
+    });
+  };
 
   return (
-    <form onSubmit={props.handleCreateBlog}>
+    <form onSubmit={addBlog}>
       <h1>create new blog</h1>
       <p>
-        title{" "}
+        title
         <input
-          type="text"
-          value={props.newBlog.title}
+          type='text'
+          value={newBlog.title}
           onChange={({ target }) =>
-            props.setNewBlog({ ...props.newBlog, title: target.value })
+            setNewBlog({ ...newBlog, title: target.value })
           }
         />
       </p>
       <p>
-        author{" "}
+        author
         <input
-          type="text"
-          value={props.newBlog.author}
+          type='text'
+          value={newBlog.author}
           onChange={({ target }) =>
-            props.setNewBlog({ ...props.newBlog, author: target.value })
+            setNewBlog({ ...newBlog, author: target.value })
           }
         />
       </p>
       <p>
-        url{" "}
+        url
         <input
-          type="text"
-          value={props.newBlog.url}
+          type='text'
+          value={newBlog.url}
           onChange={({ target }) =>
-            props.setNewBlog({ ...props.newBlog, url: target.value })
+            setNewBlog({ ...newBlog, url: target.value })
           }
         />
       </p>
-      <button type="submit">create</button>
+      <button type='submit'>create</button>
     </form>
   );
-  })
+};
 
 export default BlogForm;
