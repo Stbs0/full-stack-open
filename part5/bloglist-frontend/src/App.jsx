@@ -1,4 +1,4 @@
-import { useState, useEffect,useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import blogService from "./services/blogs";
 import loginService from "./services/login";
 import BlogPage from "./components/BlogPage";
@@ -11,9 +11,7 @@ const App = () => {
   const [errorMessage, setErrorMessage] = useState(null);
   const [message, setMessage] = useState(null);
   const [userBlogs, setUserBlogs] = useState([]);
- 
-  const blogRef = useRef()
-
+  const blogVisRef = useRef();
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem("loggedBlogAppUser");
     if (loggedUserJSON) {
@@ -23,9 +21,7 @@ const App = () => {
     }
   }, []);
   useEffect(() => {
-    blogService.getAll().then((blogs) => {
-      setBlogs(blogs);
-    });
+    blogService.getAll().then((blogs) => setBlogs(blogs));
   }, []);
 
   const handleLogin = async (e) => {
@@ -37,15 +33,11 @@ const App = () => {
       setUser(user);
       setUsername("");
       setPassword("");
-      setMessage("successfully logedin");
-      setTimeout(() => {
-        setMessage(null);
-      }, 5000);
-
-      blogRef.current.setUserBlogs(
-        blogs.filter((blog) => user.username === blog.user.username)
+      setUserBlogs(
+        blogs.filter((blog) => user.username === blog.user.username),
       );
     } catch (error) {
+      console.log(error);
       setErrorMessage("Wrong credentials");
       setTimeout(() => {
         setErrorMessage(null);
@@ -55,28 +47,20 @@ const App = () => {
 
   const handleLogout = () => {
     window.localStorage.removeItem("loggedBlogAppUser");
-    setMessage("successfully logedout");
-    setTimeout(() => {
-      setMessage(null);
-    }, 5000);
     setUser(null);
   };
 
-  const handleCreateBlog = async (e) => {
-    e.preventDefault();
+  const handleCreateBlog = async (blogObj) => {
     try {
-      const res = await blogService.create(newBlog);
+      const res = await blogService.create(blogObj);
       setUserBlogs([...userBlogs, res]);
-      setMessage(`Blog created ${res.title} `);
-      setNewBlog({ title: "", author: "", url: "" });
+      blogVisRef.current.toggleVisibility();
+      setMessage("Blog created");
       setTimeout(() => {
         setMessage(null);
       }, 5000);
     } catch (error) {
-      setErrorMessage(`could not create a blog,${error}`);
-      setTimeout(() => {
-        setMessage(null);
-      }, 5000);
+      console.log(error);
     }
   };
   return (
@@ -92,15 +76,14 @@ const App = () => {
           errorMessage={errorMessage}
         />
       ) : (
-        <BlogPage ref={blogRef}
+        <BlogPage
           message={message}
           errorMessage={errorMessage}
           handleLogout={handleLogout}
           user={user}
-          newBlog={newBlog}
           handleCreateBlog={handleCreateBlog}
-          
-          
+          userBlogs={userBlogs}
+          ref={blogVisRef}
         />
       )}
     </div>
