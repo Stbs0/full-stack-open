@@ -40,18 +40,27 @@ const App = () => {
       }, 5000);
     }
   };
+  const handleDeleteBlog = async (id,title) => {
+    try {
+      if (window.confirm(`remove blog "${title}"`)) {
+        await blogService.remove(id);
 
+        setBlogs(blogs.filter((blog) => blog.id !== id));
+      }
+    } catch (error) {}
+  };
   const handleLogout = () => {
     window.localStorage.removeItem("loggedBlogAppUser");
     setUser(null);
   };
-  const handleUpdateBlog = async (newBlog, id) => {
+  const handleUpdateBlog = async (e, newBlog, id) => {
+   
     try {
       const res = await blogService.update(newBlog, id);
       console.log(res);
-const filtered=blogs.filter(blog=> blog.id !==newBlog)
-      setBlogs([ ...filtered, res ]);
-      blogVisRef.current.toggleVisibility();
+      const filtered = blogs.filter((blog) => blog.id !== res.id);
+      setBlogs([...filtered, res]);
+
       setMessage("Blog updated");
       setTimeout(() => {
         setMessage(null);
@@ -64,7 +73,7 @@ const filtered=blogs.filter(blog=> blog.id !==newBlog)
   const handleCreateBlog = async (blogObj) => {
     try {
       const res = await blogService.create(blogObj);
-      setBlogs([...blogs, res] );
+      setBlogs([...blogs, res]);
       blogVisRef.current.toggleVisibility();
       setMessage("Blog created");
       setTimeout(() => {
@@ -96,6 +105,7 @@ const filtered=blogs.filter(blog=> blog.id !==newBlog)
           handleCreateBlog={handleCreateBlog}
           blogs={blogs}
           ref={blogVisRef}
+          handleDeleteBlog={handleDeleteBlog}
         />
       )}
     </div>

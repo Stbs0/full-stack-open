@@ -21,22 +21,23 @@ const BlogPage = forwardRef((props, refs) => {
       <Togglable
         buttonLabel='create Blog'
         ref={refs}>
-        <BlogForm
-          createBlog={props.handleCreateBlog}
-         
-        />
+        <BlogForm createBlog={props.handleCreateBlog} />
       </Togglable>
-      
+
       <div>
-        {props.blogs.map((blog) => {
-          return (
-            <Blog
-            key={blog.id}
-              blog={blog}
-              handleUpdateBlog={props.handleUpdateBlog}
-            />
-          );
-        })}
+        {props.blogs
+          .sort((a, b) => b.likes - a.likes)
+          .map((blog) => {
+            return (
+              <Blog
+                key={blog.id}
+                blog={blog}
+                handleUpdateBlog={props.handleUpdateBlog}
+                handleDeleteBlog={props.handleDeleteBlog}
+                user={props.user}
+              />
+            );
+          })}
       </div>
     </div>
   );
