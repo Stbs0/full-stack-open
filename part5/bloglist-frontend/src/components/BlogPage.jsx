@@ -1,4 +1,4 @@
-import { forwardRef, useState } from "react";
+import { forwardRef } from "react";
 import Blog from "./Blog";
 import BlogForm from "./BlogForm";
 import Notification from "./Notification";
@@ -21,16 +21,21 @@ const BlogPage = forwardRef((props, refs) => {
       <Togglable
         buttonLabel='create Blog'
         ref={refs}>
-        <BlogForm createBlog={props.handleCreateBlog} />
+        <BlogForm
+          createBlog={props.handleCreateBlog}
+         
+        />
       </Togglable>
-      // TODO fix this. it dont re render on inserting the blog
+      
       <div>
-        {props.userBlogs.map((blog) => {
-          <Blog
+        {props.blogs.map((blog) => {
+          return (
+            <Blog
             key={blog.id}
-            blog={blog}
-          />;
-          console.log(blog);
+              blog={blog}
+              handleUpdateBlog={props.handleUpdateBlog}
+            />
+          );
         })}
       </div>
     </div>
