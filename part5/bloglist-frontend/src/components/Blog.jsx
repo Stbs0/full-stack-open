@@ -16,15 +16,15 @@ const Blog = ({ blog, handleUpdateBlog, user, handleDeleteBlog }) => {
   return (
     <div style={blogStyle}>
       <p>
-        {blog.title}
-        <button onClick={handleClick}>{showDetails ? "hide" : "view"}</button>
+        {blog.title} / {blog.author}
+        <button className="showBtn" onClick={handleClick}>{showDetails ? "hide" : "view"}</button>
       </p>
 
       <div style={showDetails ? { display: "block" } : { display: "none" }}>
-        <p>{blog.url}</p>
-        <p>
+        <p className='url'>{blog.url}</p>
+        <p className='likes'>
           {blog.likes}
-          <button
+          <button className="likeBtn"
             onClick={(e) => {
               handleUpdateBlog(
                 e,
@@ -35,9 +35,11 @@ const Blog = ({ blog, handleUpdateBlog, user, handleDeleteBlog }) => {
             likes
           </button>
         </p>
-        <p>{blog.author}</p>
-        {user.username === blog.user.username ? (
-          <button onClick={()=>handleDeleteBlog(blog.id,blog.title)}>remove</button>
+
+        {user?.username === blog?.user?.username ? (
+          <button onClick={() => handleDeleteBlog(blog.id, blog.title)}>
+            remove
+          </button>
         ) : null}
       </div>
     </div>
