@@ -71,7 +71,7 @@ router.put("/:id", async (request, response) => {
     new: true,
   }).populate("user", { username: 1, name: 1 });
   console.log(updatedBlog);
-  response.json(updatedBlog);
+  response.json(updatedBlog)
 });
 
 module.exports = router;

@@ -21,6 +21,7 @@ const LogInForm = ({
       <div>
         username
         <input
+          data-testid='username'
           type='text'
           value={username}
           name='username'
@@ -31,6 +32,7 @@ const LogInForm = ({
         password
         <input
           type='text'
+          data-testid='password'
           value={password}
           name='password'
           onChange={({ target }) => setPassword(target.value)}
@@ -46,7 +48,7 @@ LogInForm.propTypes = {
   setUsername: PropTypes.func.isRequired,
   password: PropTypes.string.isRequired,
   setPassword: PropTypes.func.isRequired,
-  message: PropTypes.string.isRequired,
-  errorMessage: PropTypes.string.isRequired,
+  message: PropTypes.string,
+  errorMessage: PropTypes.string,
 };
 export default LogInForm;
