@@ -14,17 +14,17 @@ const Blog = ({ blog, handleUpdateBlog, user, handleDeleteBlog }) => {
     setShowDetails(!showDetails);
   };
   return (
-    <div style={blogStyle}>
+    <div data-testid="blog-list" style={blogStyle}>
       <p>
         {blog.title} / {blog.author}
-        <button className="showBtn" onClick={handleClick}>{showDetails ? "hide" : "view"}</button>
+        <button data-testid="show details" className="showBtn" onClick={handleClick}>{showDetails ? "hide" : "view"}</button>
       </p>
 
       <div style={showDetails ? { display: "block" } : { display: "none" }}>
         <p className='url'>{blog.url}</p>
         <p className='likes'>
           {blog.likes}
-          <button className="likeBtn"
+          <button className="likeBtn" data-testid="like btn"
             onClick={(e) => {
               handleUpdateBlog(
                 e,
@@ -37,12 +37,12 @@ const Blog = ({ blog, handleUpdateBlog, user, handleDeleteBlog }) => {
         </p>
 
         {user?.username === blog?.user?.username ? (
-          <button onClick={() => handleDeleteBlog(blog.id, blog.title)}>
+          <button data-testid="delete btn" onClick={() => handleDeleteBlog(blog.id, blog.title)}>
             remove
           </button>
         ) : null}
       </div>
-    </div>
+    </ div>
   );
 };
 
