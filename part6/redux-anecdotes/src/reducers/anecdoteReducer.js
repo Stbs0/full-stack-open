@@ -5,12 +5,8 @@ const anecdoteSlice = createSlice({
   name: "anecdotes",
   initialState: [],
   reducers: {
-    async createAnecdote(state, action) {
-      // TODO use it through redux Thunk library
-      const res = await anecServices.create(action.payload);
-      console.log(action.payload);
-      console.log(res)
-      state.push(res);
+    createAnecdote(state, action) {
+      state.push(action.payload);
     },
 
     incrementVote(state, action) {
@@ -26,4 +22,23 @@ const anecdoteSlice = createSlice({
 
 export const { createAnecdote, incrementVote, setAnecdotes } =
   anecdoteSlice.actions;
+export const initializeAnecdotes = () => {
+  return async (dispatch) => {
+    const res = await anecServices.getAll();
+
+    dispatch(setAnecdotes(res));
+  };
+};
+export const addAnecdote = (content) => {
+  return async (dispatch) => {
+    const res = await anecServices.create(content);
+    dispatch(createAnecdote(res));
+  };
+};
+export const addVoting = (id, content) => {
+  return async (dispatch) => {
+    const res = await anecServices.vote(id, content);
+    dispatch(incrementVote(res));
+  };
+};
 export default anecdoteSlice.reducer;

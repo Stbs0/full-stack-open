@@ -1,8 +1,10 @@
-import { incrementVote } from "../reducers/anecdoteReducer";
+import { addVoting } from "../reducers/anecdoteReducer";
 import { useDispatch, useSelector } from "react-redux";
-import { notify } from "../reducers/notificationReducer";
-import anecServices from "../services/anecdotes";
+import { setNotification } from "../reducers/notificationReducer";
+
 const AnecdoteList = () => {
+  const dispatch = useDispatch();
+
   const anecdotes = useSelector(({ filter, anecdotes }) => {
     if (filter === "") return anecdotes;
     return anecdotes.filter(({ content }) =>
@@ -10,11 +12,9 @@ const AnecdoteList = () => {
     );
   });
 
-  const dispatch = useDispatch();
-  const increaseVote = async (id, content) => {
-    const res = await anecServices.vote(id, {...content});
-    dispatch(incrementVote(res));
-    dispatch(notify(`you have voted "${content.content}"`));
+  const increaseVote = (id, content) => {
+    dispatch(addVoting(id, content));
+    dispatch(setNotification(`you have voted "${content.content}"`,1000));
   };
   return (
     <div>
@@ -25,8 +25,7 @@ const AnecdoteList = () => {
             <div>{anecdote.content}</div>
             <div>
               has {anecdote.votes}
-              <button
-                onClick={() => increaseVote(anecdote.id, anecdote)}>
+              <button onClick={() => increaseVote(anecdote.id, anecdote)}>
                 vote
               </button>
             </div>
