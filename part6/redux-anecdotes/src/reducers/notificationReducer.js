@@ -7,6 +7,9 @@ const notificationSlice = createSlice({
     notify(state, action) {
       return action.payload;
     },
+    setNotification(text,time){
+
+    }
   },
 });
 export const { notify } = notificationSlice.actions;

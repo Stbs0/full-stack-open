@@ -1,42 +1,29 @@
-import { createSlice, current } from "@reduxjs/toolkit";
-import { notify } from "./notificationReducer";
-import { useDispatch } from "react-redux";
-const anecdotesAtStart = [
-  "If it hurts, do it more often",
-  "Adding manpower to a late software project makes it later!",
-  "The first 90 percent of the code accounts for the first 90 percent of the development time...The remaining 10 percent of the code accounts for the other 90 percent of the development time.",
-  "Any fool can write code that a computer can understand. Good programmers write code that humans can understand.",
-  "Premature optimization is the root of all evil.",
-  "Debugging is twice as hard as writing the code in the first place. Therefore, if you write the code as cleverly as possible, you are, by definition, not smart enough to debug it.",
-];
+import { createSlice } from "@reduxjs/toolkit";
+import anecServices from "../services/anecdotes";
 
-const getId = () => (100000 * Math.random()).toFixed(0);
-
-const asObject = (anecdote) => {
-  return {
-    content: anecdote,
-    id: getId(),
-    votes: 0,
-  };
-};
-
-const initialState = anecdotesAtStart.map(asObject);
 const anecdoteSlice = createSlice({
   name: "anecdotes",
-  initialState,
+  initialState: [],
   reducers: {
-    createAnecdote(state, action) {
-      state.push({ content: action.payload, id: getId(), votes: 0 });
+    async createAnecdote(state, action) {
+      // TODO use it through redux Thunk library
+      const res = await anecServices.create(action.payload);
+      console.log(action.payload);
+      console.log(res)
+      state.push(res);
     },
-    incrementVote(state, action) {
-      const id = action.payload;
-      const anecdote = state.find((anec) => anec.id === id);
 
-      const changedAnecdote = { ...anecdote, votes: anecdote.votes + 1 };
-      return state.map((anec) => (anec.id !== id ? anec : changedAnecdote));
+    incrementVote(state, action) {
+      return state.map((anec) =>
+        anec.id !== action.payload.id ? anec : action.payload,
+      );
+    },
+    setAnecdotes(state, action) {
+      return action.payload;
     },
   },
 });
 
-export const { createAnecdote, incrementVote } = anecdoteSlice.actions;
+export const { createAnecdote, incrementVote, setAnecdotes } =
+  anecdoteSlice.actions;
 export default anecdoteSlice.reducer;
