@@ -8,11 +8,16 @@ import Blog from "./components/Blog";
 import NewBlog from "./components/NewBlog";
 import Notification from "./components/Notification";
 import Togglable from "./components/Togglable";
+import {
+  createErrorMsg,
+  createSuccessMsg,
+} from "./reducers/notificationReducer";
 
+import { useDispatch } from "react-redux";
 const App = () => {
   const [blogs, setBlogs] = useState([]);
   const [user, setUser] = useState(null);
-  const [notification, setNotification] = useState(null);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     blogService.getAll().then((blogs) => setBlogs(blogs));
@@ -27,53 +32,66 @@ const App = () => {
 
   const blogFormRef = createRef();
 
-  const notify = (message, type = "success") => {
-    setNotification({ message, type });
-    setTimeout(() => {
-      setNotification(null);
-    }, 5000);
-  };
-
   const handleLogin = async (credentials) => {
     try {
       const user = await loginService.login(credentials);
       setUser(user);
       storage.saveUser(user);
-      notify(`Welcome back, ${user.name}`);
+      dispatch(createSuccessMsg({ message: `Welcome back, ${user.name}` }));
     } catch (error) {
-      notify("Wrong credentials", "error");
+      dispatch(createErrorMsg({ message: "wrong cardinential" }));
     }
   };
 
   const handleCreate = async (blog) => {
-    const newBlog = await blogService.create(blog);
-    setBlogs(blogs.concat(newBlog));
-    notify(`Blog created: ${newBlog.title}, ${newBlog.author}`);
-    blogFormRef.current.toggleVisibility();
+    try {
+      const newBlog = await blogService.create(blog);
+      setBlogs(blogs.concat(newBlog));
+      dispatch(
+        createSuccessMsg({
+          message: `Blog created: ${newBlog.title}, ${newBlog.author}`,
+        }),
+      );
+      blogFormRef.current.toggleVisibility();
+    } catch (error) {
+      dispatch(createErrorMsg({ message: error }));
+    }
   };
 
   const handleVote = async (blog) => {
     console.log("updating", blog);
-    const updatedBlog = await blogService.update(blog.id, {
-      ...blog,
-      likes: blog.likes + 1,
-    });
+    try {
+      const updatedBlog = await blogService.update(blog.id, {
+        ...blog,
+        likes: blog.likes + 1,
+      });
 
-    notify(`You liked ${updatedBlog.title} by ${updatedBlog.author}`);
-    setBlogs(blogs.map((b) => (b.id === blog.id ? updatedBlog : b)));
+      dispatch(
+        createSuccessMsg({
+          message: `You liked ${updatedBlog.title} by ${updatedBlog.author}`,
+        }),
+      );
+      setBlogs(blogs.map((b) => (b.id === blog.id ? updatedBlog : b)));
+    } catch (error) {
+      dispatch(createErrorMsg({ message: error }));
+    }
   };
 
   const handleLogout = () => {
     setUser(null);
     storage.removeUser();
-    notify(`Bye, ${user.name}!`);
+    dispatch(createSuccessMsg({ message: `Bye, ${user.name}!` }));
   };
 
   const handleDelete = async (blog) => {
-    if (window.confirm(`Remove blog ${blog.title} by ${blog.author}`)) {
-      await blogService.remove(blog.id);
-      setBlogs(blogs.filter((b) => b.id !== blog.id));
-      notify(`Blog ${blog.title}, by ${blog.author} removed`);
+    try {
+      if (window.confirm(`Remove blog ${blog.title} by ${blog.author}`)) {
+        await blogService.remove(blog.id);
+        setBlogs(blogs.filter((b) => b.id !== blog.id));
+        dispatch(createSuccessMsg({ message: `Bye, ${user.name}!` }));
+      }
+    } catch (error) {
+      dispatch(createErrorMsg({ message: error }));
     }
   };
 
@@ -81,7 +99,7 @@ const App = () => {
     return (
       <div>
         <h2>blogs</h2>
-        <Notification notification={notification} />
+        <Notification />
         <Login doLogin={handleLogin} />
       </div>
     );
@@ -92,7 +110,7 @@ const App = () => {
   return (
     <div>
       <h2>blogs</h2>
-      <Notification notification={notification} />
+      <Notification />
       <div>
         {user.name} logged in
         <button onClick={handleLogout}>logout</button>
