@@ -1,20 +1,22 @@
 import axios from 'axios'
 import storage from './storage'
 
-const baseUrl = '/api/blogs'
+const baseUrl = 'http://localhost:3001/api/blogs';
 
 const getConfit = () => ({
   headers : { Authorization: `Bearer ${storage.loadUser().token}` }
 })
 
-const getAll = () => {
+const getAll = async () => {
   const request = axios.get(baseUrl)
-  return request.then(response => response.data)
+  const response = await request;
+  return response.data;
 }
 
-const update = (id, newObject) => {
+const update = async (id, newObject) => {
   const request = axios.put(`${baseUrl}/${id}`, newObject, getConfit())
-  return request.then(response => response.data)
+  const response = await request;
+  return response.data;
 }
 
 const create = async (newObject) => {
