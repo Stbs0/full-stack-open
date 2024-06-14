@@ -1,10 +1,10 @@
-import React, { useState } from "react";
-import PropTypes from "prop-types";
+import { useState } from "react";
 import storage from "../services/storage";
-
-const Blog = ({ blog, handleVote, handleDelete }) => {
+import { useDispatch } from "react-redux";
+import { addLike, removeBlog } from "../reducers/blogsReducer";
+const Blog = ({ blog }) => {
   const [visible, setVisible] = useState(false);
-
+  const dispatch = useDispatch();
   const nameOfUser = blog.user ? blog.user.name : "anonymous";
 
   const style = {
@@ -15,8 +15,6 @@ const Blog = ({ blog, handleVote, handleDelete }) => {
   };
 
   const canRemove = blog.user ? blog.user.username === storage.me() : true;
-
-  console.log(blog.user, storage.me(), canRemove);
 
   return (
     <div
@@ -37,29 +35,20 @@ const Blog = ({ blog, handleVote, handleDelete }) => {
             likes {blog.likes}
             <button
               style={{ marginLeft: 3 }}
-              onClick={() => handleVote(blog)}>
+              onClick={() =>
+                dispatch(addLike({ ...blog, likes: blog.likes + 1 }))
+              }>
               like
             </button>
           </div>
           <div>{nameOfUser}</div>
           {canRemove && (
-            <button onClick={() => handleDelete(blog)}>remove</button>
+            <button onClick={() => dispatch(removeBlog(blog))}>remove</button>
           )}
         </div>
       )}
     </div>
   );
-};
-
-Blog.propTypes = {
-  blog: PropTypes.shape({
-    url: PropTypes.string.isRequired,
-    title: PropTypes.string.isRequired,
-    likes: PropTypes.number.isRequired,
-    user: PropTypes.object,
-  }).isRequired,
-  handleVote: PropTypes.func.isRequired,
-  handleDelete: PropTypes.func.isRequired,
 };
 
 export default Blog;
