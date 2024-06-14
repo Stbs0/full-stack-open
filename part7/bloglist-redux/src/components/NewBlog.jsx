@@ -1,10 +1,14 @@
 import { useState } from "react";
-
+import { createBlog } from "../reducers/blogsReducer";
+import { useDispatch } from "react-redux";
 const NewBlog = ({ doCreate }) => {
   const [title, setTitle] = useState("");
   const [url, setUrl] = useState("");
   const [author, setAuthor] = useState("");
+  const dispatch = useDispatch();
 
+
+  
   const handleTitleChange = (event) => {
     setTitle(event.target.value);
   };
@@ -16,10 +20,23 @@ const NewBlog = ({ doCreate }) => {
   const handleAuthorChange = (event) => {
     setAuthor(event.target.value);
   };
-
+// TODo think hard here
   const handleSubmit = (event) => {
     event.preventDefault();
-    doCreate({ title, url, author });
+ try {
+      const newBlog = await blogService.create(blog);
+      setBlogs(blogs.concat(newBlog));
+      dispatch(
+        createSuccessMsg({
+          message: `Blog created: ${newBlog.title}, ${newBlog.author}`,
+        }),
+      );
+      blogFormRef.current.toggleVisibility();
+    } catch (error) {
+      dispatch(createErrorMsg({ message: error }));
+    }
+
+    dispatch(createBlog({ title, url, author }));
     setAuthor("");
     setTitle("");
     setUrl("");
