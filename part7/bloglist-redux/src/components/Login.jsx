@@ -1,54 +1,42 @@
-import Notification from "./Notification";
-import PropTypes from "prop-types";
-const LogInForm = ({
-  handleLogin,
-  username,
-  setUsername,
-  password,
-  setPassword,
-  message,
-  errorMessage,
-}) => (
-  <div>
-    <h1>log in to application</h1>
-    {message || errorMessage ? (
-      <Notification
-        message={message}
-        errorMessage={errorMessage}
-      />
-    ) : null}
+import { useState } from "react";
+
+const Login = ({ doLogin }) => {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handleLogin = (event) => {
+    event.preventDefault();
+    doLogin({ username, password });
+    setUsername("");
+    setPassword("");
+  };
+
+  return (
     <form onSubmit={handleLogin}>
-      <div>
-        username
+      <label>
+        Username:
         <input
+          type='text'
           data-testid='username'
-          type='text'
           value={username}
-          name='username'
-          onChange={({ target }) => setUsername(target.value)}
+          onChange={(e) => setUsername(e.target.value)}
         />
-      </div>
-      <div>
-        password
+      </label>
+      <label>
+        Password:
         <input
-          type='text'
-          data-testid='password'
+          type='password'
           value={password}
-          name='password'
-          onChange={({ target }) => setPassword(target.value)}
+          data-testid='password'
+          onChange={(e) => setPassword(e.target.value)}
         />
-      </div>
-      <button type='submit'>login</button>
+      </label>
+      <input
+        type='submit'
+        value='Login'
+      />
     </form>
-  </div>
-);
-LogInForm.propTypes = {
-  handleLogin: PropTypes.func.isRequired,
-  username: PropTypes.string.isRequired,
-  setUsername: PropTypes.func.isRequired,
-  password: PropTypes.string.isRequired,
-  setPassword: PropTypes.func.isRequired,
-  message: PropTypes.string,
-  errorMessage: PropTypes.string,
+  );
 };
-export default LogInForm;
+
+export default Login;
