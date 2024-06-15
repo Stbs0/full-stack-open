@@ -23,6 +23,8 @@ const App = () => {
     blogService.getAll().then((blogs) => setBlogs(blogs));
   }, []);
 
+  // TODO  change the codes to the model solution cuz this aint gonna work
+
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
@@ -40,7 +42,7 @@ const App = () => {
       }, 5000);
     }
   };
-  const handleDeleteBlog = async (id,title) => {
+  const handleDeleteBlog = async (id, title) => {
     try {
       if (window.confirm(`remove blog "${title}"`)) {
         await blogService.remove(id);
@@ -54,7 +56,6 @@ const App = () => {
     setUser(null);
   };
   const handleUpdateBlog = async (e, newBlog, id) => {
-   
     try {
       const res = await blogService.update(newBlog, id);
       console.log(res);
@@ -75,10 +76,6 @@ const App = () => {
       const res = await blogService.create(blogObj);
       setBlogs([...blogs, res]);
       blogVisRef.current.toggleVisibility();
-      setMessage("Blog created");
-      setTimeout(() => {
-        setMessage(null);
-      }, 5000);
     } catch (error) {
       console.log(error);
     }
