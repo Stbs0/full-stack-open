@@ -1,23 +1,39 @@
-import { useState } from "react";
+import { useState, forwardRef } from "react";
+import blogService from "../services/blogs"
 import { useNotificationDispatch } from "../NotificationContext";
-const BlogForm = ({ createBlog }) => {
+import { createSuccessMsg, createErrorMsg } from "../actions";
+import { useMutation, useQueryClient } from "@tanstack/react-query";// eslint-disable-next-line react/display-name
+const BlogForm = forwardRef((props,ref) => {
   const [newBlog, setNewBlog] = useState({
     title: "",
     author: "",
     url: "",
   });
-  const notificationDispatcher = useNotificationDispatch();
+  const queryClient = useQueryClient()
+const notificationDispatcher = useNotificationDispatch()
+ const newBlogMutation = useMutation({
+   mutationFn: blogService.create,
+   onSuccess: (newBlog) => {
+     const blogs = queryClient.getQueryData(["blogs"]);
+     queryClient.setQueryData(["blogs"], blogs.concat(newBlog));
+     notificationDispatcher(
+       createSuccessMsg(`you have created '${newBlog.title}' `),
+     );
+   },
+   onError: (error) => {
+     console.log(error);
+     notificationDispatcher(createErrorMsg(`create failed`));
+   },
+   onSettled: (data) => {
+     setTimeout(() => {
+       notificationDispatcher({ type: "CLEAR" });
+     }, 5000);
+   },
+ });
   const addBlog = (event) => {
     event.preventDefault();
-    createBlog(newBlog);
-    notificationDispatcher({
-      message: `created new blog '${newBlog.title}'`,
-      type: "NOTIFY",
-    });
-
-    setTimeout(() => {
-      notificationDispatcher({ type: "CLEAR" });
-    });
+    newBlogMutation.mutate(newBlog);
+    ref.current.toggleVisibility();
     setNewBlog({
       title: "",
       author: "",
@@ -68,6 +84,6 @@ const BlogForm = ({ createBlog }) => {
       </button>
     </form>
   );
-};
+});
 
 export default BlogForm;

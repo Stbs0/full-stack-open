@@ -1,16 +1,17 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import blogService from "./services/blogs";
 import loginService from "./services/login";
 import BlogPage from "./components/BlogPage";
 import LogInForm from "./components/LoginPage";
+import { useNotificationDispatch } from "./NotificationContext";
+import { createSuccessMsg, createErrorMsg } from "./actions";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 const App = () => {
-  const [blogs, setBlogs] = useState([]);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [user, setUser] = useState(null);
-  const [errorMessage, setErrorMessage] = useState(null);
-  const [message, setMessage] = useState(null);
-  const blogVisRef = useRef();
+
+  const notificationDispatcher = useNotificationDispatch();
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem("loggedBlogAppUser");
     if (loggedUserJSON) {
@@ -19,11 +20,10 @@ const App = () => {
       blogService.setToken(user.token);
     }
   }, []);
-  useEffect(() => {
-    blogService.getAll().then((blogs) => setBlogs(blogs));
-  }, []);
+  
 
-  // TODO  change the codes to the model solution cuz this aint gonna work
+  //setting the data at the beginning
+  //when user refresh the browsers remember the token
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -32,54 +32,45 @@ const App = () => {
       window.localStorage.setItem("loggedBlogAppUser", JSON.stringify(user));
       blogService.setToken(user.token);
       setUser(user);
+      notificationDispatcher(createSuccessMsg(`Welcome back, ${username} `));
       setUsername("");
       setPassword("");
     } catch (error) {
       console.log(error);
-      setErrorMessage("Wrong credentials");
-      setTimeout(() => {
-        setErrorMessage(null);
-      }, 5000);
+      notificationDispatcher(createErrorMsg(`Wrong credinential`));
     }
+    setTimeout(() => {
+      notificationDispatcher({ type: "CLEAR" });
+    }, 5000);
   };
+
   const handleDeleteBlog = async (id, title) => {
     try {
       if (window.confirm(`remove blog "${title}"`)) {
         await blogService.remove(id);
 
-        setBlogs(blogs.filter((blog) => blog.id !== id));
+        // setBlogs(blogs.filter((blog) => blog.id !== id));
+        notificationDispatcher(createSuccessMsg(`you have deleted '${title}'`));
       }
-    } catch (error) {}
+    } catch (error) {
+      console.log(error);
+      notificationDispatcher(createErrorMsg(`Delete failed`));
+    }
+    setTimeout(() => {
+      notificationDispatcher({ type: "CLEAR" });
+    }, 5000);
   };
+
   const handleLogout = () => {
+    notificationDispatcher(createSuccessMsg(`Bye bye, ${user.username} `));
     window.localStorage.removeItem("loggedBlogAppUser");
     setUser(null);
   };
-  const handleUpdateBlog = async (e, newBlog, id) => {
-    try {
-      const res = await blogService.update(newBlog, id);
-      console.log(res);
-      const filtered = blogs.filter((blog) => blog.id !== res.id);
-      setBlogs([...filtered, res]);
 
-      setMessage("Blog updated");
-      setTimeout(() => {
-        setMessage(null);
-      }, 5000);
-    } catch (error) {
-      throw error;
-    }
-  };
+  
 
-  const handleCreateBlog = async (blogObj) => {
-    try {
-      const res = await blogService.create(blogObj);
-      setBlogs([...blogs, res]);
-      blogVisRef.current.toggleVisibility();
-    } catch (error) {
-      console.log(error);
-    }
-  };
+ 
+
   return (
     <div>
       {user === null ? (
@@ -89,19 +80,11 @@ const App = () => {
           setUsername={setUsername}
           password={password}
           setPassword={setPassword}
-          message={message}
-          errorMessage={errorMessage}
         />
       ) : (
         <BlogPage
-          message={message}
-          errorMessage={errorMessage}
           handleLogout={handleLogout}
-          handleUpdateBlog={handleUpdateBlog}
           user={user}
-          handleCreateBlog={handleCreateBlog}
-          blogs={blogs}
-          ref={blogVisRef}
           handleDeleteBlog={handleDeleteBlog}
         />
       )}

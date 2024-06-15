@@ -6,17 +6,10 @@ const LogInForm = ({
   setUsername,
   password,
   setPassword,
-  message,
-  errorMessage,
 }) => (
   <div>
     <h1>log in to application</h1>
-    {message || errorMessage ? (
-      <Notification
-        message={message}
-        errorMessage={errorMessage}
-      />
-    ) : null}
+    <Notification />
     <form onSubmit={handleLogin}>
       <div>
         username
@@ -48,7 +41,5 @@ LogInForm.propTypes = {
   setUsername: PropTypes.func.isRequired,
   password: PropTypes.string.isRequired,
   setPassword: PropTypes.func.isRequired,
-  message: PropTypes.string,
-  errorMessage: PropTypes.string,
 };
 export default LogInForm;

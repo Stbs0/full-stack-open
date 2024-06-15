@@ -1,6 +1,13 @@
-const Notification = ({ message, errorMessage }) => {
+import { useNotificationValue } from "../NotificationContext";
+const Notification = () => {
+  const notification = useNotificationValue();
+  console.log(notification);
+
+  if (notification.message === "") {
+    return null;
+  }
   const looks = {
-    color: "red",
+    color: notification.type === "error" ? "red" : "green",
     background: "lightgrey",
     fontSize: 20,
     borderStyle: "solid",
@@ -9,11 +16,7 @@ const Notification = ({ message, errorMessage }) => {
     marginBottom: 10,
   };
 
-  return errorMessage ? (
-    <div style={looks}>{errorMessage}</div>
-  ) : (
-    <div style={{ ...looks, color: "green" }}>{message}</div>
-  );
+  return <div style={looks}>{notification.message}</div>;
 };
 
 export default Notification;

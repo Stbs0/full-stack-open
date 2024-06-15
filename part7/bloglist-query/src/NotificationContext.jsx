@@ -6,7 +6,7 @@ export const notificationReducer = (state, action) => {
   switch (action.type) {
     case "NOTIFY":
       return action.payload;
-
+case "ERROR":
     case "CLEAR":
       return { message: "", type: "" };
 
