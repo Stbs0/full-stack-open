@@ -7,7 +7,7 @@ const login = async (credentials) => {
     console.log(response.data)
     return response.data;
   } catch (error) {
-    throw error;
+    console.log(error) ;
   }
 };
 

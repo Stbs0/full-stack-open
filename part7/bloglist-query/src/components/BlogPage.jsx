@@ -2,9 +2,9 @@ import { useRef } from "react";
 import Blog from "./Blog";
 import BlogForm from "./BlogForm";
 import Notification from "./Notification";
-import Togglable from "./Togglable";import blogService from "../services/blogs";
+import Togglable from "./Togglable";
+import blogService from "../services/blogs";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-
 
 // eslint-disable-next-line react/display-name
 const BlogPage = (props) => {
@@ -14,12 +14,12 @@ const BlogPage = (props) => {
     queryFn: blogService.getAll,
     refetchOnWindowFocus: false,
   });
+  console.log(result)
   const blogs = result.data;
-   if (result.isLoading) {
-     return <div>loading</div>;
-   }
+  if (result.isLoading) {
+    return <div>loading</div>;
+  }
 
-   
   return (
     <div>
       <h1>blogs</h1>
@@ -42,9 +42,6 @@ const BlogPage = (props) => {
               <Blog
                 key={blog.id}
                 blog={blog}
-                handleUpdateBlog={props.handleUpdateBlog}
-                handleDeleteBlog={props.handleDeleteBlog}
-                user={props.user}
               />
             );
           })}
