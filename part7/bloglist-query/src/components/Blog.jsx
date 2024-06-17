@@ -3,11 +3,12 @@ import blogService from "../services/blogs";
 import { useNotificationDispatch } from "../NotificationContext";
 import { createSuccessMsg, createErrorMsg } from "../actions";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-const Blog = ({ blog, user }) => {
+import { useUserValue } from "../UserContext";
+const Blog = ({ blog }) => {
   const [showDetails, setShowDetails] = useState(false);
   const queryClient = useQueryClient();
   const notificationDispatcher = useNotificationDispatch();
-
+  const user = useUserValue();
   const voteMutation = useMutation({
     mutationFn: ({ updatedBlog, id }) => {
       console.log(id, updatedBlog);
@@ -68,7 +69,7 @@ const Blog = ({ blog, user }) => {
   const handleDeleteBlog = (id, title) => {
     if (window.confirm(`remove blog "${title}"`)) {
       deleteMutation.mutate(id);
-      notificationDispatcher(createSuccessMsg(`you have voted '${title}' `));
+      notificationDispatcher(createSuccessMsg(`you have deleted '${title}' `));
     }
   };
   return (
@@ -98,8 +99,8 @@ const Blog = ({ blog, user }) => {
             likes
           </button>
         </p>
-
-        {user?.username === blog?.user?.username ? (
+        <p> created by {blog.user.name}</p>
+        {user.username === blog.user.username ? (
           <button
             data-testid='delete btn'
             onClick={() => handleDeleteBlog(blog.id, blog.title)}>

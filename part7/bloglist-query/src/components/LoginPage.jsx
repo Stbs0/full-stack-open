@@ -1,18 +1,18 @@
 import Notification from "./Notification";
-import PropTypes from "prop-types";
 import { useState, useEffect } from "react";
 import { useNotificationDispatch } from "../NotificationContext";
-import { createSuccessMsg, createErrorMsg, userLogOut, userLogIn } from "../actions";
+import { createSuccessMsg, createErrorMsg, userLogIn } from "../actions";
 import { useUserDispatcher, useUserValue } from "../UserContext";
 import blogService from "../services/blogs";
 import loginService from "../services/login";
 
 const LogInForm = () => {
-  const 
+  const [password, setPassword] = useState("");
+  const [username, setUsername] = useState("");
   const user = useUserValue();
-  console.log(user);
   const userDispatcher = useUserDispatcher();
   const notificationDispatcher = useNotificationDispatch();
+
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem("loggedBlogAppUser");
     if (loggedUserJSON) {
@@ -20,12 +20,10 @@ const LogInForm = () => {
       blogService.setToken(user.token);
     }
   }, []);
-// FIXME: I deleted the useState that controlles the input fix it by restoring the useState 
+
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      console.log(e.target.name)
-      const username = e.target.name
       const userData = await loginService.login({ username, password });
       window.localStorage.setItem(
         "loggedBlogAppUser",
@@ -34,22 +32,15 @@ const LogInForm = () => {
       blogService.setToken(userData.token);
       userDispatcher(userLogIn(userData));
       notificationDispatcher(
-        createSuccessMsg(`Welcome back, ${userData.username} `),
+        createSuccessMsg(`Welcome back, ${userData.name} `),
       );
-   
     } catch (error) {
       console.log(error);
-      notificationDispatcher(createErrorMsg(`Wrong credinential`));
+      notificationDispatcher(createErrorMsg(`Wrong credentials`));
     }
     setTimeout(() => {
       notificationDispatcher({ type: "CLEAR" });
     }, 5000);
-  };
-
-  const handleLogout = () => {
-    notificationDispatcher(createSuccessMsg(`Bye bye, ${user.username} `));
-    window.localStorage.removeItem("loggedBlogAppUser");
-    userDispatcher(userLogOut());
   };
 
   return (
@@ -82,11 +73,5 @@ const LogInForm = () => {
     </div>
   );
 };
-LogInForm.propTypes = {
-  handleLogin: PropTypes.func.isRequired,
-  username: PropTypes.string.isRequired,
-  setUsername: PropTypes.func.isRequired,
-  password: PropTypes.string.isRequired,
-  setPassword: PropTypes.func.isRequired,
-};
+
 export default LogInForm;

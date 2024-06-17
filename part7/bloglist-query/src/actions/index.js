@@ -1,4 +1,3 @@
-import login from "../services/login";
 
 export const createErrorMsg = (message) => {
   return {
@@ -25,10 +24,4 @@ export const userLogIn = (user) => {
     payload: user,
   };
 };
-export const userLogOut = async () => {
 
-  return {
-    type: "LOGOUT",
-    payload: null,
-  };
-};
