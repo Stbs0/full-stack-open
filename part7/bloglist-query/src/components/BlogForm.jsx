@@ -24,7 +24,7 @@ const notificationDispatcher = useNotificationDispatch()
      console.log(error);
      notificationDispatcher(createErrorMsg(`create failed`));
    },
-   onSettled: (data) => {
+   onSettled: () => {
      setTimeout(() => {
        notificationDispatcher({ type: "CLEAR" });
      }, 5000);

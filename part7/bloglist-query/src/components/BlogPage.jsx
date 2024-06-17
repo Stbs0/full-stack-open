@@ -4,29 +4,39 @@ import BlogForm from "./BlogForm";
 import Notification from "./Notification";
 import Togglable from "./Togglable";
 import blogService from "../services/blogs";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-
+import { useQuery } from "@tanstack/react-query";
+import { useUserValue, useUserDispatcher } from "../UserContext";
+import { useNotificationDispatch } from "../NotificationContext";
+import { createSuccessMsg } from "../actions";
 // eslint-disable-next-line react/display-name
-const BlogPage = (props) => {
+const BlogPage = () => {
   const blogVisRef = useRef();
+  const user = useUserValue();
+  const userDispatcher = useUserDispatcher();
+  const notificationDispatcher = useNotificationDispatch();
+
   const result = useQuery({
     queryKey: ["blogs"],
     queryFn: blogService.getAll,
     refetchOnWindowFocus: false,
   });
-  console.log(result)
   const blogs = result.data;
+
   if (result.isLoading) {
     return <div>loading</div>;
   }
+  const handleLogout = () => {
+    notificationDispatcher(createSuccessMsg(`Bye bye, ${user.name} `));
+    window.localStorage.removeItem("loggedBlogAppUser");
+    userDispatcher({ type: "LOGOUT" });
+  };
 
   return (
     <div>
       <h1>blogs</h1>
       <Notification />
       <p>
-        {props.user.name} logged in{" "}
-        <button onClick={props.handleLogout}>logout</button>
+        {user.username} logged in <button onClick={handleLogout}>logout</button>
       </p>
       <Togglable
         buttonLabel='create Blog'

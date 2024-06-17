@@ -1,9 +1,6 @@
-import { useState, useEffect } from "react";
-import blogService from "./services/blogs";
-import loginService from "./services/login";
 import BlogPage from "./components/BlogPage";
 import LogInForm from "./components/LoginPage";
-import { useUserDispatcher, useUserValue } from "./UserContext";
+import {  useUserValue } from "./UserContext";
 // import { createSuccessMsg, createErrorMsg } from "./actions";
 // import { userLogOut, userLogIn } from "./actions";
 const App = () => {
@@ -53,7 +50,7 @@ const App = () => {
   //   userDispatcher(userLogOut());
   // };
 
-  return <div>{user === null ? <LogInForm /> : <BlogPage />}</div>;
+  return <div>{user.username==="" ? <LogInForm /> : <BlogPage />}</div>;
 };
 
 export default App;
