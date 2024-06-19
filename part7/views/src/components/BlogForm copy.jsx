@@ -1,34 +1,35 @@
 import { useState, forwardRef } from "react";
-import blogService from "../services/blogs";
+import blogService from "../services/blogs"
 import { useNotificationDispatch } from "../NotificationContext";
 import { createSuccessMsg, createErrorMsg } from "../actions";
-import { useMutation, useQueryClient } from "@tanstack/react-query"; // eslint-disable-next-line react/display-name
-const BlogForm = forwardRef((props, ref) => {
+import { useMutation, useQueryClient } from "@tanstack/react-query";// eslint-disable-next-line react/display-name
+const BlogForm = forwardRef((props,ref) => {
   const [newBlog, setNewBlog] = useState({
     title: "",
     author: "",
     url: "",
   });
-  const queryClient = useQueryClient();
-  const notificationDispatcher = useNotificationDispatch();
-  const newBlogMutation = useMutation({
-    mutationFn: blogService.create,
-    onSuccess: (newBlog) => {
-      queryClient.invalidateQueries(["blogs"]);
-      notificationDispatcher(
-        createSuccessMsg(`you have created '${newBlog.title}' `),
-      );
-    },
-    onError: (error) => {
-      console.log(error);
-      notificationDispatcher(createErrorMsg(`create failed`));
-    },
-    onSettled: () => {
-      setTimeout(() => {
-        notificationDispatcher({ type: "CLEAR" });
-      }, 5000);
-    },
-  });
+  const queryClient = useQueryClient()
+const notificationDispatcher = useNotificationDispatch()
+ const newBlogMutation = useMutation({
+   mutationFn: blogService.create,
+   onSuccess: (newBlog) => {
+     const blogs = queryClient.getQueryData(["blogs"]);
+     queryClient.setQueryData(["blogs"], blogs.concat(newBlog));
+     notificationDispatcher(
+       createSuccessMsg(`you have created '${newBlog.title}' `),
+     );
+   },
+   onError: (error) => {
+     console.log(error);
+     notificationDispatcher(createErrorMsg(`create failed`));
+   },
+   onSettled: () => {
+     setTimeout(() => {
+       notificationDispatcher({ type: "CLEAR" });
+     }, 5000);
+   },
+ });
   const addBlog = (event) => {
     event.preventDefault();
     newBlogMutation.mutate(newBlog);

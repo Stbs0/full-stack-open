@@ -1,10 +1,21 @@
-const key = "UserBlogListApp"
+const KEY = "blogUserKey";
 
-export const setStorage = (user)=>{
-window.localStorage.setItem(key, JSON.stringify(user))
-}
+const saveUser = (user) => {
+  localStorage.setItem(KEY, JSON.stringify(user));
+};
 
-export const loadStorage = ()=>{
-window.localStorage.getItem(key)
+const loadUser = () => {
+  const user = localStorage.getItem(KEY);
+  return user ? JSON.parse(user) : null;
+};
 
-}
+const me = () => {
+  const user = loadUser();
+  return user ? user.username : null;
+};
+
+const removeUser = () => {
+  localStorage.removeItem(KEY);
+};
+
+export default { saveUser, loadUser, removeUser, me };

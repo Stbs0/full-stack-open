@@ -1,36 +1,33 @@
 import Notification from "./Notification";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNotificationDispatch } from "../NotificationContext";
 import { createSuccessMsg, createErrorMsg, userLogIn } from "../actions";
-import { useUserDispatcher, useUserValue } from "../UserContext";
+import { useUserDispatcher } from "../UserContext";
 import blogService from "../services/blogs";
 import loginService from "../services/login";
 import { useNavigate } from "react-router-dom";
-const LogInForm = () => {
+import storage from "../services/storage";
 
+const LogInForm = () => {
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
-  const user = useUserValue();
   const userDispatcher = useUserDispatcher();
   const notificationDispatcher = useNotificationDispatch();
   const navigate = useNavigate();
-
-  
 
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
       const userData = await loginService.login({ username, password });
-      window.localStorage.setItem(
-        "loggedBlogAppUser",
-        JSON.stringify(userData),
-      );
-      blogService.setToken(userData.token);
+      console.log(userData)
+      storage.saveUser(userData);
+      console.log(userData)
       userDispatcher(userLogIn(userData));
       notificationDispatcher(
         createSuccessMsg(`Welcome back, ${userData.name} `),
       );
-      navigate("/users")
+      blogService.setToken(userData.token);
+      navigate("/users");
     } catch (error) {
       console.log(error);
       notificationDispatcher(createErrorMsg(`Wrong credentials`));

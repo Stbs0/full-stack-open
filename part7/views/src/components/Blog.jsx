@@ -1,14 +1,18 @@
+import { useParams } from "react-router-dom";
 import { useState } from "react";
 import blogService from "../services/blogs";
 import { useNotificationDispatch } from "../NotificationContext";
 import { createSuccessMsg, createErrorMsg } from "../actions";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import { useUserValue } from "../UserContext";
-const Blog = ({ blog }) => {
-  const [showDetails, setShowDetails] = useState(false);
+const Blog = ({ blogs }) => {
+  const navigate =useNavigate()
   const queryClient = useQueryClient();
   const notificationDispatcher = useNotificationDispatch();
+  const id = useParams().id;
   const user = useUserValue();
+  const blog = blogs.find((blog) => blog.id === id);
   const voteMutation = useMutation({
     mutationFn: ({ updatedBlog, id }) => {
       console.log(id, updatedBlog);
@@ -34,7 +38,6 @@ const Blog = ({ blog }) => {
       }, 5000);
     },
   });
-
   const deleteMutation = useMutation({
     mutationFn: blogService.remove,
     onSuccess: () => {
@@ -50,66 +53,39 @@ const Blog = ({ blog }) => {
       }, 5000);
     },
   });
-
-  const blogStyle = {
-    paddingTop: 10,
-    paddingLeft: 2,
-    border: "solid",
-    borderWidth: 1,
-    marginBottom: 5,
-  };
-  const handleUpdateBlog = async (e, updatedBlog) => {
+  const handleUpdateBlog = async (updatedBlog) => {
     console.log(updatedBlog.id);
     voteMutation.mutate({ updatedBlog, id: updatedBlog.id });
-  };
-
-  const handleClick = () => {
-    setShowDetails(!showDetails);
   };
   const handleDeleteBlog = (id, title) => {
     if (window.confirm(`remove blog "${title}"`)) {
       deleteMutation.mutate(id);
+      navigate("/users")
       notificationDispatcher(createSuccessMsg(`you have deleted '${title}' `));
     }
   };
   return (
-    <div
-      data-testid='blog-list'
-      style={blogStyle}>
+    <div>
+      <h1>{blog.title}</h1>
+      <p>{blog.url}</p>
       <p>
-        {blog.title} / {blog.author}
+        {blog.likes} likes{" "}
         <button
-          data-testid='show details'
-          className='showBtn'
-          onClick={handleClick}>
-          {showDetails ? "hide" : "view"}
+          onClick={() =>
+            handleUpdateBlog({ ...blog, likes: String(+blog.likes + 1) })
+          }>
+          like
         </button>
       </p>
-
-      <div style={showDetails ? { display: "block" } : { display: "none" }}>
-        <p className='url'>{blog.url}</p>
-        <p className='likes'>
-          {blog.likes}
-          <button
-            className='likeBtn'
-            data-testid='like btn'
-            onClick={(e) => {
-              handleUpdateBlog(e, { ...blog, likes: String(+blog.likes + 1) });
-            }}>
-            likes
-          </button>
-        </p>
-        <p> created by {blog.user.name}</p>
+      <p>
+        added by {blog.user.name}{" "}
         {user.username === blog.user.username ? (
-          <button
-            data-testid='delete btn'
-            onClick={() => handleDeleteBlog(blog.id, blog.title)}>
-            remove
+          <button onClick={() => handleDeleteBlog(blog.id, blog.title)}>
+            delete
           </button>
         ) : null}
-      </div>
+      </p>
     </div>
   );
 };
-
 export default Blog;

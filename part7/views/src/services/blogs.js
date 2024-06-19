@@ -11,12 +11,14 @@ const getAll = async () => {
   };
   const request = axios.get(baseUrl, config);
   const res = await request;
+  console.log(token)
   return res.data;
 };
 const create = async (newObject) => {
   const config = {
     headers: { Authorization: token },
   };
+  console.log(token);
 
   const res = await axios.post(baseUrl, newObject, config);
   return res.data;
