@@ -33,7 +33,10 @@ router.post("/", userExtractor, async (request, response) => {
 
   response.status(201).json(savedBlog);
 });
-
+router.post("/:id/comments", userExtractor, async (req, res) => {
+  const body = req.body;
+  
+});
 router.delete("/:id", userExtractor, async (request, response) => {
   const user = request.user;
 
