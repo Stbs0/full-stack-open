@@ -1,6 +1,7 @@
-import { useReducer, createContext, useContext,useEffect } from "react";
+import { useReducer, createContext, useContext, useEffect } from "react";
 import { userLogIn } from "./actions";
 import blogService from "./services/blogs";
+import storage from "./services/storage";
 const UserContext = createContext();
 
 const userReducer = (state, action) => {
@@ -9,24 +10,15 @@ const userReducer = (state, action) => {
       return action.payload;
     case "LOGOUT":
       return null;
-      default:
-        return state
+    default:
+      return state;
   }
 };
 
 export const UserContextProvider = (props) => {
-  const loggedUserJSON = window.localStorage.getItem("loggedBlogAppUser");
-  blogService.setToken(JSON.parse(loggedUserJSON).token);
-  const [user, userDispatcher] = useReducer(
-    userReducer,
-    JSON.parse(loggedUserJSON),
-  );
-// useEffect(() => {
-//   console.log(loggedUserJSON)
-//   if (loggedUserJSON) {
-//     userDispatcher(userLogIn());
-//   }
-// }, []);
+  const loadedUser = storage.loadUser();
+  const [user, userDispatcher] = useReducer(userReducer, loadedUser);
+loadedUser && blogService.setToken(loadedUser.token)
   return (
     <UserContext.Provider value={[user, userDispatcher]}>
       {props.children}

@@ -1,5 +1,5 @@
-import BlogPage from "./components/BlogPage";
 import LogInForm from "./components/LoginPage";
+
 import Users from "./components/Users";
 import { useUserValue } from "./UserContext";
 import { useQuery } from "@tanstack/react-query";
@@ -12,59 +12,127 @@ import {
   Link,
   Navigate,
 } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNotificationDispatch } from "./NotificationContext";
 import { useUserDispatcher } from "./UserContext";
-// import { createSuccessMsg, createErrorMsg } from "./actions";
-import { userLogIn } from "./actions";
-
-// FIXME: users arnt saved so the login page appear instead of users page no matter what
-/* TODO // 
-create a use to save the logged in of the user refer to execise 7.13?
-*/
+import { userLogIn, createSuccessMsg } from "./actions";
+import storage from "./services/storage";
+import Notification from "./components/Notification";
+import Blog from "./components/Blog";
+import Togglable from "./components/Togglable";
+import BlogForm from "./components/BlogForm";
+import { useId } from "react";
 const App = () => {
-  const userDispatcher = useUserDispatcher();
-  
+  // const navigate = useNavigate();
+  const blogVisRef = useRef();
 
   const user = useUserValue();
-  console.log(user);
-  // const usersData = useQuery({
-  //   queryKey: ["blogs"],
-  //   queryFn: blogService.getAllUsers,
-  //   refetchOnWindowFocus: false,
-  // });
+  const notificationDispatcher = useNotificationDispatch();
+  const userDispatcher = useUserDispatcher();
+  const usersData = useQuery({
+    queryKey: ["users"],
+    queryFn: blogService.getAllUsers,
+  });
+  const blogsData = useQuery({
+    queryKey: ["blogs"],
+    queryFn: blogService.getAll,
+  });
+  const blogs = blogsData.data;
+  const users = usersData.data;
+
+  const handleLogout = () => {
+    notificationDispatcher(createSuccessMsg(`Bye bye, ${user.name} `));
+    storage.removeUser();
+    userDispatcher({ type: "LOGOUT" });
+  };
+  
+  if (usersData.isLoading) {
+    return <div>fetching data</div>;
+  }const userId = users.find((u) => u.username === user.username);
+  const notifyComponent = () => {
+    return (
+      <div>
+        <h1> blogs</h1>
+        <Notification />
+
+        <Togglable
+          buttonLabel='create Blog'
+          ref={blogVisRef}>
+          <BlogForm ref={blogVisRef} />
+        </Togglable>
+      </div>
+    );
+  };
+  const padding = {
+    padding: 5,
+  };
+  const backgroundColor = { backgroundColor: "gray" };
   return (
     <Router>
-      <Routes>
-        {/* added props to the User component */}
-        <Route
-          path='/users/:id'
-          element={<User users={user} />}
-        />
-        <Route
-          path='/users'
-          element={   user ? (
-              <Navigate
-                replace
-                to={"/"}
-              />
-            ) : (
-               <Users />)}
-        />
-        <Route
-          path='/'
-          element={
-            user ? (
-              <Navigate
-                replace
-                to={"/users"}
-              />
-            ) : (
-              <LogInForm />
-            )
-          }
-        />
-      </Routes>
+      <div style={backgroundColor}>
+        <Link
+          style={padding}
+          to={`/users/${userId.id}`}>
+          blogs
+        </Link>
+        <Link
+          style={padding}
+          to={"/users"}>
+          users
+        </Link>
+        <span>
+          {user.name} logged in <button onClick={handleLogout}>logout</button>
+        </span>
+      </div>
+      {user && notifyComponent()}
+
+      <div>
+        <Routes>
+          <Route
+            path='/blogs/:id'
+            element={<Blog blogs={blogs} />}
+          />
+          <Route
+            path='/users/:id'
+            element={
+              user ? (
+                <User users={users} />
+              ) : (
+                <Navigate
+                  replace
+                  to={"/"}
+                />
+              )
+            }
+          />
+          <Route
+            path='/users'
+            element={
+              user ? (
+                <Users users={users} />
+              ) : (
+                <Navigate
+                  replace
+                  to={"/"}
+                />
+              )
+            }
+          />
+          <Route
+            path='/'
+            element={
+              user ? (
+                <Navigate
+                  replace
+                  to={"/users"}
+                />
+              ) : (
+                <LogInForm />
+              )
+            }
+          />
+        </Routes>
+      </div>
     </Router>
   );
 };
