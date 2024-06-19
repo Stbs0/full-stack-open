@@ -7,19 +7,15 @@ import blogService from "../services/blogs";
 import loginService from "../services/login";
 import { useNavigate } from "react-router-dom";
 const LogInForm = () => {
+
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
   const user = useUserValue();
   const userDispatcher = useUserDispatcher();
   const notificationDispatcher = useNotificationDispatch();
   const navigate = useNavigate();
-  useEffect(() => {
-    const loggedUserJSON = window.localStorage.getItem("loggedBlogAppUser");
-    if (loggedUserJSON) {
-      userDispatcher(userLogIn(JSON.parse(loggedUserJSON)));
-      blogService.setToken(user.token);
-    }
-  }, []);
+
+  
 
   const handleLogin = async (e) => {
     e.preventDefault();
