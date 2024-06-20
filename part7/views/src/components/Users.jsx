@@ -6,7 +6,7 @@ import { createSuccessMsg } from "../actions";
 import { useUserDispatcher, useUserValue } from "../UserContext";
 import { useNavigate, Link, useParams } from "react-router-dom";
 import storage from "../services/storage";
-const Users = ({ users, handleLogout }) => {
+const Users = ({ users }) => {
   const user = useUserValue();
 
   return (
