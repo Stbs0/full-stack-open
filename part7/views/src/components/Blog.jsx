@@ -6,53 +6,17 @@ import { createSuccessMsg, createErrorMsg } from "../actions";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { useUserValue } from "../UserContext";
+import { useMutateCostume } from "../queries";
+import Comments from "./Comments";
 const Blog = ({ blogs }) => {
-  const navigate =useNavigate()
-  const queryClient = useQueryClient();
+  const { voteMutation, deleteMutation } = useMutateCostume();
+  const navigate = useNavigate();
+
   const notificationDispatcher = useNotificationDispatch();
   const id = useParams().id;
   const user = useUserValue();
   const blog = blogs.find((blog) => blog.id === id);
-  const voteMutation = useMutation({
-    mutationFn: ({ updatedBlog, id }) => {
-      console.log(id, updatedBlog);
-      return blogService.update(updatedBlog, id);
-    },
-    onSuccess: (updatedBlog) => {
-      const blogs = queryClient.getQueryData(["blogs"]);
-      queryClient.setQueryData(
-        ["blogs"],
-        blogs.map((blog) => (blog.id === updatedBlog.id ? updatedBlog : blog)),
-      );
-      notificationDispatcher(
-        createSuccessMsg(`you have voted '${updatedBlog.title}' `),
-      );
-    },
-    onError: (error) => {
-      console.log(error);
-      notificationDispatcher(createErrorMsg(`vote failed`));
-    },
-    onSettled: (data) => {
-      setTimeout(() => {
-        notificationDispatcher({ type: "CLEAR" });
-      }, 5000);
-    },
-  });
-  const deleteMutation = useMutation({
-    mutationFn: blogService.remove,
-    onSuccess: () => {
-      queryClient.invalidateQueries(["blogs"]);
-    },
-    onError: (error) => {
-      console.log(error);
-      notificationDispatcher(createErrorMsg(`vote failed`));
-    },
-    onSettled: (data) => {
-      setTimeout(() => {
-        notificationDispatcher({ type: "CLEAR" });
-      }, 5000);
-    },
-  });
+  console.log(blog);
   const handleUpdateBlog = async (updatedBlog) => {
     console.log(updatedBlog.id);
     voteMutation.mutate({ updatedBlog, id: updatedBlog.id });
@@ -60,7 +24,7 @@ const Blog = ({ blogs }) => {
   const handleDeleteBlog = (id, title) => {
     if (window.confirm(`remove blog "${title}"`)) {
       deleteMutation.mutate(id);
-      navigate("/users")
+      navigate(`/users/${blog.user.id}`);
       notificationDispatcher(createSuccessMsg(`you have deleted '${title}' `));
     }
   };
@@ -85,6 +49,10 @@ const Blog = ({ blogs }) => {
           </button>
         ) : null}
       </p>
+      <Comments
+        blogs={blogs}
+        blog={blog}
+      />
     </div>
   );
 };

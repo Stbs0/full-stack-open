@@ -17,11 +17,12 @@ import { useNotificationDispatch } from "./NotificationContext";
 import { useUserDispatcher } from "./UserContext";
 import { userLogIn, createSuccessMsg } from "./actions";
 import storage from "./services/storage";
-import Notification from "./components/Notification";
+import Notification, { NotifyComponent } from "./components/Notification";
 import Blog from "./components/Blog";
 import Togglable from "./components/Togglable";
 import BlogForm from "./components/BlogForm";
 import { useId } from "react";
+import { useGetBlogs, useGetUsers } from "./queries";
 const App = () => {
   // const navigate = useNavigate();
   const blogVisRef = useRef();
@@ -37,32 +38,17 @@ const App = () => {
     queryKey: ["blogs"],
     queryFn: blogService.getAll,
   });
-  const blogs = blogsData.data;
-  const users = usersData.data;
 
   const handleLogout = () => {
     notificationDispatcher(createSuccessMsg(`Bye bye, ${user.name} `));
     storage.removeUser();
     userDispatcher({ type: "LOGOUT" });
   };
-  
-  if (usersData.isLoading) {
-    return <div>fetching data</div>;
-  }const userId = users.find((u) => u.username === user.username);
-  const notifyComponent = () => {
-    return (
-      <div>
-        <h1> blogs</h1>
-        <Notification />
+  const users = usersData.data;
+  const blogs = blogsData.data;
 
-        <Togglable
-          buttonLabel='create Blog'
-          ref={blogVisRef}>
-          <BlogForm ref={blogVisRef} />
-        </Togglable>
-      </div>
-    );
-  };
+  const userId = users.find((u) => u.username === user.username);
+
   const padding = {
     padding: 5,
   };
@@ -84,7 +70,7 @@ const App = () => {
           {user.name} logged in <button onClick={handleLogout}>logout</button>
         </span>
       </div>
-      {user && notifyComponent()}
+      {user && NotifyComponent()}
 
       <div>
         <Routes>
