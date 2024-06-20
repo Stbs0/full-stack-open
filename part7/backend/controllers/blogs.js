@@ -3,9 +3,18 @@ const router = require("express").Router();
 const Blog = require("../models/blog");
 const User = require("../models/user");
 const userExtractor = require("../utils/middleware").userExtractor;
-
+const Comment = require("../models/comment");
 router.get("/", async (request, response) => {
-  const blogs = await Blog.find({}).populate("user", { username: 1, name: 1 });
+  const blogs = await Blog.find({})
+    .populate({
+      path: "comments",
+      select: "comment id",
+    })
+    .populate({
+      path: "user",
+      select: "username name id",
+    })
+    .select("title author url comments likes user id");;
 
   response.json(blogs);
 });
@@ -24,6 +33,7 @@ router.post("/", userExtractor, async (request, response) => {
   }
 
   blog.likes = blog.likes | 0;
+
   blog.user = user;
   user.blogs = user.blogs.concat(blog._id);
 
@@ -33,10 +43,7 @@ router.post("/", userExtractor, async (request, response) => {
 
   response.status(201).json(savedBlog);
 });
-router.post("/:id/comments", userExtractor, async (req, res) => {
-  const body = req.body;
-  
-});
+
 router.delete("/:id", userExtractor, async (request, response) => {
   const user = request.user;
 
@@ -76,4 +83,29 @@ router.put("/:id", async (request, response) => {
   response.json(updatedBlog);
 });
 
+router.post("/:id/comments", async (req, res) => {
+  const blogId = req.params.id;
+  const comment = {
+    comment: req.body.comment,
+    blog: blogId,
+  };
+  const newComment = new Comment(comment);
+  const savedComment = await newComment.save();
+
+  const blog = await Blog.findById(blogId);
+  console.log(blog);
+  blog.comments = blog.comments.concat(savedComment._id);
+  await blog.save();
+  res.send(201).json(savedComment);
+});
+router.get("/:id/comments", async (req, res) => {
+  const blogId = req.params.id;
+  const comment = await Comment.find({}).populate("blog", {
+    comments: 0,
+    user: 0,
+  });
+
+  console.log(comment);
+  res.json(comment);
+});
 module.exports = router;
