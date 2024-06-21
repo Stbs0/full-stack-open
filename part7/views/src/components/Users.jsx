@@ -1,17 +1,7 @@
-import blogService from "../services/blogs";
-import { useQuery } from "@tanstack/react-query";
-import Notification from "./Notification";
-import { useNotificationDispatch } from "../NotificationContext";
-import { createSuccessMsg } from "../actions";
-import { useUserDispatcher, useUserValue } from "../UserContext";
-import { useNavigate, Link, useParams } from "react-router-dom";
-import storage from "../services/storage";
+import { Link } from "react-router-dom";
 const Users = ({ users }) => {
-  const user = useUserValue();
-
   return (
     <div>
-     
       <table>
         <thead>
           <tr>

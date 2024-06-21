@@ -1,10 +1,5 @@
-import { useParams } from "react-router-dom";
-import blogService from "../services/blogs";
 import { Link } from "react-router-dom";
-import Blog from "./Blog";
 const User = ({ user }) => {
-
- 
   console.log(user);
   if (!user) {
     return null;

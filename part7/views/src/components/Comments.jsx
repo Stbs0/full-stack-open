@@ -1,38 +1,36 @@
-import { useState } from "react";
 import blogServices from "../services/blogs";
 import { useMutateCostume } from "../queries";
 import { useQuery } from "@tanstack/react-query";
-import { useParams } from "react-router-dom";
-const Comments = ({ blog }) => {
+const Comments = ({ blogId }) => {
   const { commentMutation } = useMutateCostume();
-const blogId = useParams().id
   const commentsData = useQuery({
-    queryKey:["comments"],
-    queryFn:blogServices.getComments
-  })
-
-  const comments = commentsData.data
-
-  // FIXME: add this functionality
-  // dont forget about the axios or services of blogs
-  // also try add the fetching of comments throught the server and mutate the creation
+    queryKey: ["comments"],
+    queryFn: () => {
+      return blogServices.getComments(blogId);
+    },
+  });
+  const comments = commentsData.data;
 
   if (commentsData.isLoading) {
-    return <div>fetchingcomments</div>
+    return <div>fetchingcomments</div>;
   }
   const handleClick = async (e) => {
-    const inp = e.target.comment.value;
-    const res = await blogServices.createComment(blog.id, inp);
+    e.preventDefault();
+    const newComment = e.target.comment.value;
+    commentMutation.mutate({ blogId, newComment });
+    e.target.comment.value = "";
   };
 
   return (
     <div>
       <h1>comments</h1>
-      <input name='comment' /> <button>add comment</button>
+      <form onSubmit={(e) => handleClick(e)}>
+        <input name='comment' /> <button>add comment</button>
+      </form>
       <ul>
         {comments.length
           ? comments.map((comment) => {
-              return <li key={comment.id}>{comment.comment}</li>;
+              return <li key={comment.id}>{comment.title}</li>;
             })
           : null}
       </ul>

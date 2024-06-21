@@ -6,27 +6,23 @@ import { useQuery } from "@tanstack/react-query";
 import blogService from "./services/blogs";
 import User from "./components/User";
 import {
-  BrowserRouter as Router,
   Routes,
   Route,
-  Link,
   Navigate,
   useMatch,
+  useNavigate,
 } from "react-router-dom";
-import { useState, useEffect, useRef } from "react";
+import { useRef } from "react";
 import { useNotificationDispatch } from "./NotificationContext";
 import { useUserDispatcher } from "./UserContext";
-import { userLogIn, createSuccessMsg } from "./actions";
+import { createSuccessMsg } from "./actions";
 import storage from "./services/storage";
-import Notification, { NotifyComponent } from "./components/Notification";
+import { NotifyComponent } from "./components/Notification";
 import Blog from "./components/Blog";
-import Togglable from "./components/Togglable";
-import BlogForm from "./components/BlogForm";
-import { useId } from "react";
-import { useGetBlogs, useGetUsers } from "./queries";
+
 import Menu from "./components/Menu";
 const App = () => {
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
   const blogVisRef = useRef();
 
   const loggedUser = useUserValue();
@@ -52,7 +48,6 @@ const App = () => {
   if (blogsData.isLoading) {
     return <div>fectiong data</div>;
   }
-  console.log(blogs, users);
   const blog = blogMatch
     ? blogs.find((blog) => blog.id === blogMatch.params.id)
     : null;
@@ -62,9 +57,9 @@ const App = () => {
   const handleLogout = () => {
     notificationDispatcher(createSuccessMsg(`Bye bye, ${loggedUser.name} `));
     storage.removeUser();
+    navigate("/");
     userDispatcher({ type: "LOGOUT" });
   };
-
   return (
     <div>
       {loggedUser && <Menu handleLogout={handleLogout} />}
