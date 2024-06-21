@@ -3,19 +3,21 @@ import { useState } from "react";
 import blogService from "../services/blogs";
 import { useNotificationDispatch } from "../NotificationContext";
 import { createSuccessMsg, createErrorMsg } from "../actions";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient,useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { useUserValue } from "../UserContext";
 import { useMutateCostume } from "../queries";
 import Comments from "./Comments";
-const Blog = ({ blogs }) => {
+const Blog = ({blog}) => {
   const { voteMutation, deleteMutation } = useMutateCostume();
   const navigate = useNavigate();
 
   const notificationDispatcher = useNotificationDispatch();
   const id = useParams().id;
   const user = useUserValue();
-  const blog = blogs.find((blog) => blog.id === id);
+ 
+
+ 
   console.log(blog);
   const handleUpdateBlog = async (updatedBlog) => {
     console.log(updatedBlog.id);
@@ -28,6 +30,8 @@ const Blog = ({ blogs }) => {
       notificationDispatcher(createSuccessMsg(`you have deleted '${title}' `));
     }
   };
+
+
   return (
     <div>
       <h1>{blog.title}</h1>
@@ -50,7 +54,7 @@ const Blog = ({ blogs }) => {
         ) : null}
       </p>
       <Comments
-        blogs={blogs}
+        
         blog={blog}
       />
     </div>
