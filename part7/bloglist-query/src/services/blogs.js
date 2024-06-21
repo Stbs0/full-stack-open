@@ -35,5 +35,12 @@ const remove = async (id) => {
   };
   await axios.delete(`${baseUrl}/${id}`, config);
 };
+const getAllUsers = async () => {
+  const config = {
+    headers: { Authorization: token },
+  };
+  const res = await axios.get("http://localhost:3001/api/users", config);
+  return res.data;
+};
 
-export default { getAll, remove, setToken, create, update };
+export default { getAll, remove, setToken, create, update, getAllUsers };

@@ -8,20 +8,21 @@ import { useQuery } from "@tanstack/react-query";
 import { useUserValue, useUserDispatcher } from "../UserContext";
 import { useNotificationDispatch } from "../NotificationContext";
 import { createSuccessMsg } from "../actions";
+
 // eslint-disable-next-line react/display-name
 const BlogPage = () => {
   const blogVisRef = useRef();
   const user = useUserValue();
   const userDispatcher = useUserDispatcher();
   const notificationDispatcher = useNotificationDispatch();
-
   const result = useQuery({
     queryKey: ["blogs"],
     queryFn: blogService.getAll,
     refetchOnWindowFocus: false,
   });
-  const blogs = result.data;
 
+  const blogs = result.data;
+  console.log("first", blogs);
   if (result.isLoading) {
     return <div>loading</div>;
   }
@@ -30,7 +31,6 @@ const BlogPage = () => {
     window.localStorage.removeItem("loggedBlogAppUser");
     userDispatcher({ type: "LOGOUT" });
   };
-
   return (
     <div>
       <h1>blogs</h1>
@@ -38,6 +38,7 @@ const BlogPage = () => {
       <p>
         {user.username} logged in <button onClick={handleLogout}>logout</button>
       </p>
+
       <Togglable
         buttonLabel='create Blog'
         ref={blogVisRef}>

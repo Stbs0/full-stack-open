@@ -1,7 +1,6 @@
 import { useNotificationValue } from "../NotificationContext";
 const Notification = () => {
   const notification = useNotificationValue();
-  console.log(notification);
 
   if (notification.message === "") {
     return null;
