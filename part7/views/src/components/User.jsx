@@ -2,12 +2,9 @@ import { useParams } from "react-router-dom";
 import blogService from "../services/blogs";
 import { Link } from "react-router-dom";
 import Blog from "./Blog";
-const User = ({ users }) => {
-  const id = useParams().id;
-  console.log(users);
-  const user = users.find((user) => {
-    return user.id === id;
-  });
+const User = ({ user }) => {
+
+ 
   console.log(user);
   if (!user) {
     return null;

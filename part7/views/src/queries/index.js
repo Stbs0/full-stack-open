@@ -1,5 +1,3 @@
-import { useParams } from "react-router-dom";
-import { useState } from "react";
 import blogService from "../services/blogs";
 import { useNotificationDispatch } from "../NotificationContext";
 import { createSuccessMsg, createErrorMsg } from "../actions";
@@ -41,7 +39,22 @@ export const useMutateCostume = () => {
     },
     onError: (error) => {
       console.log(error);
-      notificationDispatcher(createErrorMsg(`vote failed`));
+      notificationDispatcher(createErrorMsg(`delete failed`));
+    },
+    onSettled: () => {
+      setTimeout(() => {
+        notificationDispatcher({ type: "CLEAR" });
+      }, 5000);
+    },
+  });
+  const commentMutation = useMutation({
+    mutationFn: blogService.createComment,
+    onSuccess: () => {
+      queryClient.invalidateQueries(["Comments"]);
+    },
+    onError: (error) => {
+      console.log(error);
+      notificationDispatcher(createErrorMsg(`comment failed`));
     },
     onSettled: () => {
       setTimeout(() => {
@@ -50,7 +63,7 @@ export const useMutateCostume = () => {
     },
   });
 
-  return { voteMutation, deleteMutation };
+  return { voteMutation, deleteMutation, commentMutation };
 };
 export const useGetUsers = () => {
   const { isLoading, data } = useQuery({
