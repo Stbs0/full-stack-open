@@ -1,9 +1,8 @@
 import { Link } from "react-router-dom";
 import { useUserValue } from "../UserContext";
 const Menu = ({ handleLogout }) => {
-
   const user = useUserValue();
-  
+
   const padding = {
     padding: 5,
   };

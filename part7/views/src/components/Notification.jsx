@@ -1,5 +1,4 @@
 import { useNotificationValue } from "../NotificationContext";
-import { useRef } from "react";
 import Togglable from "./Togglable";
 import BlogForm from "./BlogForm";
 export const NotifyComponent = ({ blogVisRef }) => {

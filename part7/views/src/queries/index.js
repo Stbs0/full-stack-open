@@ -48,9 +48,11 @@ export const useMutateCostume = () => {
     },
   });
   const commentMutation = useMutation({
-    mutationFn: blogService.createComment,
+    mutationFn: ({ blogId, newComment }) => {
+      return blogService.createComment(blogId, newComment);
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries(["Comments"]);
+      queryClient.invalidateQueries(["comments"]);
     },
     onError: (error) => {
       console.log(error);

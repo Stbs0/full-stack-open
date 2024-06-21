@@ -11,14 +11,12 @@ const getAll = async () => {
   };
   const request = axios.get(baseUrl, config);
   const res = await request;
-  console.log(token);
   return res.data;
 };
 const create = async (newObject) => {
   const config = {
     headers: { Authorization: token },
   };
-  console.log(token);
 
   const res = await axios.post(baseUrl, newObject, config);
   return res.data;
@@ -44,15 +42,17 @@ const getAllUsers = async () => {
   const res = await axios.get("http://localhost:3001/api/users", config);
   return res.data;
 };
-const getComments = async (blogId, oldComment) => {
-  const res = await axios.post(`${baseUrl}/${blogId}/comments`, oldComment);
+const getComments = async (blogId) => {
+  const res = await axios.get(`${baseUrl}/${blogId}/comments`);
   return res.data;
 };
 
-const createComment = async (blogId, newComment) => {
-  const res = await axios.post(`${baseUrl}/${blogId}/comments`, newComment);
-
-  return res.data
+const createComment = async (blogId, title) => {
+  const res = await axios.post(`${baseUrl}/${blogId}/comments`, {
+    title,
+    blog: blogId,
+  });
+  return res.data;
 };
 export default {
   getAll,
