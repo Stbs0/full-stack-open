@@ -12,7 +12,7 @@ const Books = () => {
 
    return <div>{error.message}</div>;
  }
-
+console.log("first")
   const books = data.allBooks;
   const uniqueGenres = [...new Set(books.flatMap((book) => book.genres))];
 

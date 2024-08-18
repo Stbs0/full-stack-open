@@ -6,25 +6,23 @@ import { ALL_BOOKS, BOOK_ADDED, ME } from "./queires";
 export const updateCache = (cache, query, bookAdded) => {
   // helper that is used to eliminate saving same person twice
   const uniqByName = (a) => {
-    let seen = new Set()
+    let seen = new Set();
     return a.filter((item) => {
-      let k = item.name
-      return seen.has(k) ? false : seen.add(k)
-    })
-  }
-cache.updateQuery(query, ({ allBooks }) => {
-  return {
-    allBooks: allBooks.concat(bookAdded),
+      let k = item.name;
+      return seen.has(k) ? false : seen.add(k);
+    });
   };
-});}
+  cache.updateQuery(query, (data) => {
+    return {
+      allBooks: data.allBooks.concat(bookAdded),
+    };
+  });
+};
 
 const App = () => {
   const [errorMessage, setErrorMessage] = useState(null);
   const [token, setToken] = useState("");
-  const {
-    data,
-    loading,
-  } = useQuery(ME);
+  const { data, loading } = useQuery(ME);
 
   const client = useApolloClient();
   useEffect(() => {
@@ -32,14 +30,14 @@ const App = () => {
     setToken(storageToken);
   }, []);
 
- useSubscription(BOOK_ADDED, {
-   onData: ({ data,client }) => {
-     const bookAdded = data.data.bookAdded
-     console.log(bookAdded);
-   notify(bookAdded.title)
-    updateCache(client.cache, { query: ALL_BOOKS }, bookAdded);
-   },
- });
+  useSubscription(BOOK_ADDED, {
+    onData: ({ data, client }) => {
+      const bookAdded = data.data.bookAdded;
+      console.log(bookAdded);
+      notify(bookAdded.title);
+      updateCache(client.cache, { query: ALL_BOOKS }, bookAdded);
+    },
+  });
   if (loading) return <div>loading</div>;
   const notify = (message) => {
     setErrorMessage(message);
@@ -66,18 +64,18 @@ const App = () => {
         <NavLink to={"/books"}>
           <button>books</button>
         </NavLink>
-        {token && (
+        {data?.me && (
           <NavLink to={"/newBook"}>
             <button>add book</button>{" "}
           </NavLink>
         )}
 
         <NavLink to={"/login"}>
-          <button onClick={() => token && logout()}>
-            {token ? "logout" : "login"}
+          <button onClick={() => data?.me && logout()}>
+            {data?.me ? "logout" : "login"}
           </button>
         </NavLink>
-        {token && (
+        {data?.me && (
           <NavLink to={"/recommendation"}>
             <button>recommendation</button>{" "}
           </NavLink>

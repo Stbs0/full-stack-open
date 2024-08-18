@@ -3,6 +3,20 @@ import { ADD_BOOK, ALL_BOOKS } from "../queires";
 import { useMutation } from "@apollo/client";
 import { useOutletContext } from "react-router-dom";
 
+export const updateCache = (cache, query, addedBook) => {
+  // helper that is used to eliminate saving same person twice
+  
+
+  cache.updateQuery(query, (data ) => {
+    if (!data) {
+      return { data: [addedBook] };
+    }
+    return {
+      allPersons: data.allBooks.concat(addedBook),
+    };
+  });
+};
+
 const NewBook = () => {
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
@@ -15,6 +29,11 @@ const NewBook = () => {
     onError: (error) => {
       const messages = error.graphQLErrors.map((e) => e.message).join("\n");
       notify(messages);
+      console.log({ ...error });
+    },
+    update: (cache, data) => {
+      const addBook = data.data.addBook;
+      updateCache(cache, { query: ALL_BOOKS }, addBook);
     },
   });
 

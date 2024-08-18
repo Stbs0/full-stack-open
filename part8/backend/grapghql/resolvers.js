@@ -29,6 +29,7 @@ const resolvers = {
   },
   Author: {
     bookCount: async (root) => Book.countDocuments({ author: root._id }),
+    id:(root)=>root.id.toString()
   },
  
   Subscription: {
@@ -56,14 +57,15 @@ const resolvers = {
             },
           });
         }
-        const book = new Book({ ...args, author: author._id });
+        const book = new Book({ ...args, author: author._id.toString() });
 
         await book.save();
+const savedBook = await book.populate("author")
+        pubsub.publish("BOOK_ADDED", { bookAdded: savedBook });
 
-        pubsub.publish("BOOK_ADDED", { bookAdded: book });
-
-        return book;
+        return savedBook;
       } catch (error) {
+        console.log("adderror",error)
         throw new GraphQLError("Saving user failed", {
           extensions: {
             code: "BAD_USER_INPUT",

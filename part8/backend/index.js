@@ -2,7 +2,7 @@ const { ApolloServer } = require("@apollo/server");
 const { GraphQLError } = require("graphql");
 const Author = require("./models/Author");
 const Book = require("./models/Book");
-const resolvers = require('./grapghql/resolvers')
+const resolvers = require("./grapghql/resolvers");
 const { expressMiddleware } = require("@apollo/server/express4");
 const {
   ApolloServerPluginDrainHttpServer,
@@ -15,10 +15,9 @@ const typeDefs = require("./grapghql/typedefs");
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
 const User = require("./models/User");
-mongoose.set("debug",true)
 const { WebSocketServer } = require("ws");
 const { useServer } = require("graphql-ws/lib/use/ws");
-
+mongoose.set("debug",false)
 mongoose.set("strictQuery", false);
 require("dotenv").config();
 mongoose
@@ -34,17 +33,17 @@ const start = async () => {
   const app = express();
   const httpServer = http.createServer(app);
 
-    const wsServer = new WebSocketServer({
-      server: httpServer,
-      path: "/",
-    });
+  const wsServer = new WebSocketServer({
+    server: httpServer,
+    path: "/",
+  });
 
-    const schema = makeExecutableSchema({ typeDefs, resolvers });
-    const serverCleanup = useServer({ schema }, wsServer);
+  const schema = makeExecutableSchema({ typeDefs, resolvers });
+  const serverCleanup = useServer({ schema }, wsServer);
 
   const server = new ApolloServer({
     schema,
-    plugins:  [
+    plugins: [
       ApolloServerPluginDrainHttpServer({ httpServer }),
       {
         async serverWillStart() {
@@ -72,7 +71,7 @@ const start = async () => {
             auth.substring(7),
             process.env.JWT_SECRET,
           );
-          const currentUser = await User.findById(decodedToken.id)
+          const currentUser = await User.findById(decodedToken.id);
           return { currentUser };
         }
       },
