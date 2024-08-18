@@ -1,7 +1,22 @@
-import { useApolloClient, useQuery } from "@apollo/client";
+import { useApolloClient, useQuery, useSubscription } from "@apollo/client";
 import { useEffect, useState } from "react";
 import { NavLink, Outlet } from "react-router-dom";
-import { ME } from "./queires";
+import { ALL_BOOKS, BOOK_ADDED, ME } from "./queires";
+
+export const updateCache = (cache, query, bookAdded) => {
+  // helper that is used to eliminate saving same person twice
+  const uniqByName = (a) => {
+    let seen = new Set()
+    return a.filter((item) => {
+      let k = item.name
+      return seen.has(k) ? false : seen.add(k)
+    })
+  }
+cache.updateQuery(query, ({ allBooks }) => {
+  return {
+    allBooks: allBooks.concat(bookAdded),
+  };
+});}
 
 const App = () => {
   const [errorMessage, setErrorMessage] = useState(null);
@@ -17,8 +32,15 @@ const App = () => {
     setToken(storageToken);
   }, []);
 
+ useSubscription(BOOK_ADDED, {
+   onData: ({ data,client }) => {
+     const bookAdded = data.data.bookAdded
+     console.log(bookAdded);
+   notify(bookAdded.title)
+    updateCache(client.cache, { query: ALL_BOOKS }, bookAdded);
+   },
+ });
   if (loading) return <div>loading</div>;
-  console.log(data);
   const notify = (message) => {
     setErrorMessage(message);
     setTimeout(() => {

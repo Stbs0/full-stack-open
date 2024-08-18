@@ -12,7 +12,6 @@ const NewBook = () => {
 
   const { notify } = useOutletContext();
   const [addBook] = useMutation(ADD_BOOK, {
-    refetchQueries: [{ query: ALL_BOOKS }],
     onError: (error) => {
       const messages = error.graphQLErrors.map((e) => e.message).join("\n");
       notify(messages);

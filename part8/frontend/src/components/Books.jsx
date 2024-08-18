@@ -7,7 +7,11 @@ const Books = () => {
   const [genre, setGenre] = useState("");
 
   if (loading) return <div>loading...</div>;
-  if (error) return <div>Error: {error.message}</div>;
+ if (error) {
+   console.log({...error});
+
+   return <div>{error.message}</div>;
+ }
 
   const books = data.allBooks;
   const uniqueGenres = [...new Set(books.flatMap((book) => book.genres))];

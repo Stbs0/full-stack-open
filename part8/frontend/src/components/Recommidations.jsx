@@ -5,13 +5,16 @@ import { useOutletContext } from "react-router-dom";
 
 const Recommidations = () => {
   const { data: me } = useOutletContext();
-  console.log(me);
   const { data, loading, error } = useQuery(ALL_BOOKS, {
     variables: { genre: me.me.favoriteGenre },
   });
 
   if (loading) return <div>loading</div>;
-  if (error) return <div>loading</div>;
+  if (error) {
+    console.log({...error});
+
+    return <div>{error.message}</div>;
+  }
   const books = data.allBooks;
   return (
     <div>
