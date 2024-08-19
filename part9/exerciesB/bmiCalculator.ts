@@ -1,11 +1,11 @@
 import { parseProcessArgs } from "./parseProcessArgs";
 
-interface Obj {
+export interface Obj {
   height: number;
   weight: number;
   bmi: string;
 }
-interface Error {
+export interface Error {
   error: string;
 }
 
@@ -28,5 +28,10 @@ const calculateBmi = (height: number, weight: number): Obj | Error => {
     error: "invalid BMI",
   };
 };
-const [value1, value2]: number[] = parseProcessArgs(process.argv);
-console.log(calculateBmi(value1, value2));
+if (require.main === module) {
+  
+  const [value1, value2]: number[] = parseProcessArgs(process.argv);
+  console.log(calculateBmi(value1, value2));
+}
+
+export default calculateBmi

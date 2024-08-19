@@ -1,6 +1,6 @@
 import { parseProcessArgs } from "./parseProcessArgs";
 
-interface Obj {
+export interface Obj {
   periodLength: number;
   trainingDays: number;
   success: boolean;
@@ -9,26 +9,43 @@ interface Obj {
   target: number;
   average: number;
 }
-const [target,...args]: number[] = parseProcessArgs(process.argv);
+export interface Days {
+  daily_exercises: number[];
+  target: number;
+}
 
-const calculateExercises = (days: number[], target: number): Obj => {
-  const periodLength: number = days.length;
-  const trainingDays: number = days.reduce((a, b) => (b === 0 ? a : ++a), 0);
-  const average: number = days.reduce((a, b) => a + b, 0) / days.length;
-  const rating: 1 | 2 | 3 = target > average ? 3 : target === average ? 2 : 1;
+const calculateExercises = (days: Days): Obj => {
+  const periodLength: number = days.daily_exercises.length;
+
+  const trainingDays: number = days.daily_exercises.reduce(
+    (a, b) => (b === 0 ? a : ++a),
+    0,
+  );
+
+  const average: number =
+    days.daily_exercises.reduce((a, b) => a + b, 0) /
+    days.daily_exercises.length;
+
+  const rating: 1 | 2 | 3 =
+    days.target > average ? 3 : days.target === average ? 2 : 1;
+
   const ratingDescription: string =
     rating === 1 ? "bad" : rating === 2 ? "ok" : "good";
-  const success: boolean = average >= target;
+  const success: boolean = average >= days.target;
 
   return {
-    target,
     periodLength,
     trainingDays,
     success,
     rating,
     ratingDescription,
+    target: days.target,
     average,
   };
 };
+if (require.main === module) {
+  const [target, ...args]: number[] = parseProcessArgs(process.argv);
 
-console.log(calculateExercises(args, target));
+  console.log(calculateExercises({ daily_exercises: args, target }));
+}
+export default calculateExercises;

@@ -1,56 +1,44 @@
 import express from "express";
 
-// import { parseProcessArgs } from "./parseProcessArgs";
-
-interface Obj {
-  height: number;
-  weight: number;
-  bmi: string;
-}
-interface Error {
-  error: string;
-}
-
-const calculateBmi = (height: number, weight: number): Obj | Error => {
-  const bmi: number = weight / Math.pow(height / 100, 2);
-
-  if (bmi < 16) {
-    return { height, weight, bmi: "Severely underweight" };
-  } else if (bmi >= 16 && bmi < 18.5) {
-    return { height, weight, bmi: "underweight" };
-  } else if (bmi >= 18.5 && bmi < 25) {
-    return { height, weight, bmi: "Normal range" };
-  } else if (bmi >= 25 && bmi < 30) {
-    return { height, weight, bmi: "overweight" };
-  } else if (bmi >= 30) {
-    return { height, weight, bmi: "obese" };
-  }
-
-  return {
-    error: "invalid BMI",
-  };
-};
-// const [value1, value2]: number[] = parseProcessArgs(process.argv);
-// console.log(calculateBmi(value1, value2));
-
-
+import calculateBmi, { Obj, Error } from "./bmiCalculator";
+import calculateExercises,{Days} from "./exerciseCalculator";
 const app = express();
 
-app.get("/hello", (_req, res) => {
-  res.send("pong");
-});
+app.use(express.json());
+
 app.get("/bmi", (req, res) => {
   const height: number = Number(req.query.height);
   const weight: number = Number(req.query.weight);
-  
+
   if (isNaN(height) || isNaN(weight)) {
     res.json({ error: "malformatted parameters" });
     return;
-    
   }
- const result: Obj | Error = calculateBmi(height, weight);
+  const result: Obj | Error = calculateBmi(height, weight);
   res.json(result);
 });
+
+app.post("/exercises", (req, res) => {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any
+  const training: any = req.body;
+
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+  if (training.daily_exercises === undefined || training.target === undefined) {
+    res.json({ error: "parameters missing" });
+  }
+  if (
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    typeof training.daily_exercises !== "object" ||
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    typeof training.target !== "number"
+  ) {
+    res.json({ error: "malformatted parameters" });
+  }
+  const result = calculateExercises(training as Days);
+
+  res.json(result);
+});
+
 
 const PORT = 3003;
 
