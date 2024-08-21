@@ -1,0 +1,10 @@
+POST http://localhost:3000/api/patients
+Content-Type: application/json
+
+ {
+    "name": "Matti drthrth",
+    "dateOfBirth": "1971-04-09",
+    "ssn": "090471-5665754",
+    "gender": "female",
+    "occupation": "sdvsdv evangelist"
+  }
