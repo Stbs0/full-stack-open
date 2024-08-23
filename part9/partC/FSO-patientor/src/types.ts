@@ -9,6 +9,7 @@ export enum Gender {
   Female = "female",
   Other = "other",
 }
+export type Codes = Pick<Diagnosis, "code">;
 
 export interface Patient {
   id: string;
@@ -63,6 +64,9 @@ export type Entry =
   | OccupationalHealthcareEntry
   | HealthCheckEntry;
 
+export type NewHealthEntry = Omit<HealthCheckEntry, "id">;
+export type NewHospitalEntry = Omit<HospitalEntry, "id">;
+export type NewOccupationalEntry = Omit<OccupationalHealthcareEntry, "id">;
 // // Define special omit for unions
 // type UnionOmit<T, K extends string | number | symbol> = T extends unknown
 //   ? Omit<T, K>

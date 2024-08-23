@@ -3,17 +3,17 @@ import { HospitalEntry } from "../../types";
 const HospitalEntries = ({ entry }: { entry: HospitalEntry }) => {
   return (
     <div style={{ border: "1px solid black" }}>
-      <p>
+      <div>
+        {entry.date} <LocalHospitalIcon />
         <strong>
-          {entry.date} <LocalHospitalIcon />
           <br />
           <em>{entry.description} </em>
           <br />{" "}
           {entry.diagnosisCodes &&
-            entry.diagnosisCodes.map((a) => <li>{a}</li>)}
+            entry.diagnosisCodes.map((a) => <li key={a}>{a}</li>)}
           Discharge: {entry.discharge.date} by {entry.discharge.criteria}
         </strong>
-      </p>
+      </div>
     </div>
   );
 };

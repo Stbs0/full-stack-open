@@ -28,18 +28,26 @@ router.post("/", (req, res) => {
 });
 
 router.post("/:id/entries", (req, res) => {
-  const newEntry = toNewEntry(req.body);
-  if (!newEntry) {
-    res.status(400).send("malformatted parameters");
+  try {
+    const newEntry = toNewEntry(req.body);
+    if (!newEntry) {
+      return res.status(400).send("malformatted parameters");
+    }
+    const patient = patientsServices.getOnePatient(req.params.id);
+    if (!patient) {
+      return res.status(400).send("malformatted parameters");
+    }
+    const addedEntry = patientsServices.addedEntry(patient, newEntry);
+    if (!addedEntry) {
+      return res.status(400).send("malformatted parameters");
+    }
+    return res.json(addedEntry);
+  } catch (error) {
+    console.log("ddddddddddd", error);
+    if (error instanceof Error) {
+      return res.status(400).json(error.message);
+    }
+    return res.status(400).json(error);
   }
-  const patient = patientsServices.getOnePatient(req.params.id);
-  if (!patient) {
-    res.status(400).send("malformatted parameters");
-  }
-  const addedEntry = patientsServices.addedEntry(patient, newEntry);
-  if (!addedEntry) {
-    res.status(400).send("malformatted parameters");
-  }
-  res.json(addedEntry);
 });
 export default router;

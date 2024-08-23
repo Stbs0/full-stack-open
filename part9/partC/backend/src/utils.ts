@@ -127,7 +127,7 @@ export const toNewEntry = (object: unknown): EntryWithoutId => {
   }
 
   let newEntry: EntryWithoutId | undefined;
-
+  console.log(object);
   if ("type" in object) {
     // newEntry.type = parseType(object.type);
     switch (object.type) {
@@ -155,7 +155,7 @@ export const toNewEntry = (object: unknown): EntryWithoutId => {
           throw new Error(
             "Incorrect data: discharge is missing date or criteria",
           );
-    
+
         newEntry = {
           description: parseName(object.description),
           date: parseDate(object.date),
@@ -168,61 +168,54 @@ export const toNewEntry = (object: unknown): EntryWithoutId => {
         };
         break;
       case HealthType.OccupationalHealthcare:
-        if (
-          !("employerName" in object) ||
-          !("sickLeave" in object) ||
-          !object.sickLeave ||
-          typeof object.sickLeave !== "object"
-        ) {
+        if (!("employerName" in object)) {
           throw new Error("Incorrect data: employer name is missing");
         }
-        if (!("endDate" in object.sickLeave) || !object.sickLeave) {
-          throw new Error("Incorrect data: sick leave is missing end date");
+        if (
+          "sickLeave" in object &&
+          typeof object.sickLeave === "object" &&
+          object.sickLeave
+        ) {
+          if (
+            "startDate" in object.sickLeave &&
+            "endDate" in object.sickLeave
+          ) {
+            if (object.sickLeave.startDate && object.sickLeave.endDate) {
+              newEntry = {
+                description: parseName(object.description),
+                date: parseDate(object.date),
+                type: HealthType.OccupationalHealthcare,
+                specialist: parseSpecialist(object.specialist),
+                employerName: parseName(object.employerName),
+                sickLeave: {
+                  startDate: parseDate(object.sickLeave.startDate),
+                  endDate: parseDate(object.sickLeave.endDate),
+                },
+              };
+            } else {
+              newEntry = {
+                description: parseName(object.description),
+                date: parseDate(object.date),
+                type: HealthType.OccupationalHealthcare,
+                specialist: parseSpecialist(object.specialist),
+                employerName: parseName(object.employerName),
+              };
+            }
+          }
         }
-        if (!("startDate" in object.sickLeave) || !object.sickLeave) {
-          throw new Error("Incorrect data: sick leave is missing start date");
-        }
-        newEntry = {
-          description: parseName(object.description),
-          date: parseDate(object.date),
-          type: HealthType.OccupationalHealthcare,
-          specialist: parseSpecialist(object.specialist),
-          employerName: parseName(object.employerName),
-          sickLeave: {
-            startDate: parseDate(object.sickLeave.startDate),
-            endDate: parseDate(object.sickLeave.endDate),
-          },
-        };
+
         break;
       default:
         throw new Error("Incorrect data: unknown type");
     }
-
-    if ("diagnosisCodes" in object) {
-      newEntry.diagnosisCodes = parseDiagnosisCodes(object);
-    }
   }
-
   if (!newEntry) {
     throw new Error("Incorrect data: some fields are missing");
   }
+  if ("diagnosisCodes" in object) {
+    newEntry.diagnosisCodes = parseDiagnosisCodes(object);
+  }
   return newEntry;
 };
-// const toNewEntry = (object: unknown): EntryWithoutId => {
-//   if (!object || typeof object !== "object")
-//     throw new Error("Incorrect or missing data");
-//   if ("type" in object) {
-//     if (object.type === "HealthCheck") {
-//       const newEntry: EntryWithoutId = {
-//         description: parseName(object.description),
-//         date: parseDate(object.date),
-//         specialist: parseName(object.specialist),
-//       };
-//     }
 
-//     if ("description" in object && "date" in object && "specialist" in object) {
-//     }
-//   }
-//   throw new Error("Incorrect data: some fields are missing");
-// };
 export default toNewPatient;
