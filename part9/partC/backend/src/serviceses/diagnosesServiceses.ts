@@ -1,6 +1,6 @@
 import data from "../../data/diagnoses";
-import { Diagnoses } from "../types";
- const getDiagnoses = () :Diagnoses[]=> {
+import { Diagnosis } from "../types";
+const getDiagnoses = (): Diagnosis[] => {
   return data;
 };
 

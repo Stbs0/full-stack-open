@@ -1,6 +1,6 @@
 import express from "express";
 import patientsServices from "../serviceses/patientsServices";
-import toNewPatient from "../utils";
+import toNewPatient, { toNewEntry } from "../utils";
 const router = express.Router();
 
 router.get("/", (_req, res) => {
@@ -25,5 +25,21 @@ router.post("/", (req, res) => {
   }
 
   res.json(addedPatient);
+});
+
+router.post("/:id/entries", (req, res) => {
+  const newEntry = toNewEntry(req.body);
+  if (!newEntry) {
+    res.status(400).send("malformatted parameters");
+  }
+  const patient = patientsServices.getOnePatient(req.params.id);
+  if (!patient) {
+    res.status(400).send("malformatted parameters");
+  }
+  const addedEntry = patientsServices.addedEntry(patient, newEntry);
+  if (!addedEntry) {
+    res.status(400).send("malformatted parameters");
+  }
+  res.json(addedEntry);
 });
 export default router;
